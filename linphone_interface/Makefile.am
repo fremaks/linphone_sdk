@@ -1,0 +1,5 @@
+AUTOMAKE_OPTIONS = foreign
+SUBDIRS = base
+if BUILD_ANDROID
+SUBDIRS += jni
+endif
