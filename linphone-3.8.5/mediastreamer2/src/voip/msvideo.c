@@ -86,7 +86,6 @@ int ms_yuv_buf_init_from_mblk(YuvBuf *buf, mblk_t *m){
 	mblk_video_header* hdr = (mblk_video_header*)m->b_datap->db_base;
 	w = hdr->w;
 	h = hdr->h;
-	FMS_WARN("@@@@@@@@@@@@@@@@@@@@@@@ms_yuv_buf_init_from_mblk:%d:%d\n", w, h);
 	w = 800;
 	h = 480;
 	if (m->b_cont == NULL)

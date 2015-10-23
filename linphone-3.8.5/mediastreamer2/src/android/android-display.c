@@ -116,9 +116,9 @@ static void android_display_process(MSFilter *f){
 	int err;
 	(*jvms)->AttachCurrentThread(jvms, &jenv, NULL);  
 	ms_filter_lock(f);
-    FMS_WARN("0000000000000000000000android_display_process 1\n");
+   
     if (g_lntVideoWindow!=NULL && ad->jbitmap == NULL) {
-		FMS_WARN("0000000000000000000000android_display_process 2\n");
+
         ad->jbitmap=(*jenv)->CallObjectMethod(jenv,g_lntVideoWindow,ad->get_bitmap_id);
         ad->orientation_change_pending=FALSE;
         if (ad->jbitmap!=NULL){
@@ -134,11 +134,11 @@ static void android_display_process(MSFilter *f){
         if (ad->jbitmap!=NULL) FMS_WARN("New java bitmap given with w=%i,h=%i,stride=%i,format=%i",
 	           ad->bmpinfo.width,ad->bmpinfo.height,ad->bmpinfo.stride,ad->bmpinfo.format);
     }
-    FMS_WARN("0000000000000000000000android_display_process 3\n");
+   
 	if (ad->jbitmap!=0 && !ad->orientation_change_pending){
-		FMS_WARN("0000000000000000000000android_display_process 4\n");
+	
 		if ((m=ms_queue_peek_last(f->inputs[0]))!=NULL){
-			FMS_WARN("0000000000000000000000android_display_process 5\n");
+	
 			if (ms_yuv_buf_init_from_mblk (&pic,m)==0){
 				MSVideoSize wsize={ad->bmpinfo.width,ad->bmpinfo.height};
 				//MSVideoSize vsize={pic.w, pic.h};
@@ -146,8 +146,8 @@ static void android_display_process(MSFilter *f){
 				MSRect vrect;
 				MSPicture dest={0};
 				void *pixels=NULL;
-				FMS_WARN("0000000000000000000000android_display_process 6, wsize=[%d:%d] vsize=[%d:%d]\n",
-						wsize.width, wsize.height, vsize.width, vsize.height);
+			
+	
 			
 				if (!ms_video_size_equal(vsize,ad->vsize)){
 					FMS_WARN("Video to display has size %ix%i\n",vsize.width,vsize.height);
@@ -158,34 +158,34 @@ static void android_display_process(MSFilter *f){
 					}
 					/*select_orientation(ad,wsize,vsize);*/
 				}
-				FMS_WARN("0000000000000000000000android_display_process 6-0\n");
+			
 				ms_layout_compute(wsize,vsize,vsize,-1,0,&vrect, NULL);
-				FMS_WARN("0000000000000000000000android_display_process 6-00, vrect=%d:%d\n", vrect.w,vrect.h);
+			
 				if (ad->sws==NULL){
-					FMS_WARN("0000000000000000000000android_display_process 6-1\n");
+				
 					ad->sws=ms_scaler_create_context (vsize.width,vsize.height,MS_YUV420P,
 					                           vrect.w,vrect.h,MS_RGB565,MS_SCALER_METHOD_BILINEAR);
 					if (ad->sws==NULL){
 						ms_fatal("Could not obtain sws context !");
 					}
 				}
-				FMS_WARN("0000000000000000000000android_display_process 6-2\n");
+			
 				if (sym_AndroidBitmap_lockPixels(jenv,ad->jbitmap,&pixels)==0){
-					FMS_WARN("0000000000000000000000android_display_process 6-3\n");
+					
 					if (pixels!=NULL){
-						FMS_WARN("0000000000000000000000android_display_process 6-4\n");
+					
 						dest.planes[0]=(uint8_t*)pixels+(vrect.y*ad->bmpinfo.stride)+(vrect.x*2);
 						dest.strides[0]=ad->bmpinfo.stride;
-						FMS_WARN("0000000000000000000000android_display_process 6-41\n");
+					
 						ms_scaler_process(ad->sws,pic.planes,pic.strides,dest.planes,dest.strides);
 					}else ms_warning("Pixels==NULL in android bitmap !");
-					FMS_WARN("0000000000000000000000android_display_process 6-5\n");
+				
 					sym_AndroidBitmap_unlockPixels(jenv,ad->jbitmap);
 				}else{
-					FMS_WARN("0000000000000000000000android_display_process 6-6\n");
+				
 					ms_error("AndroidBitmap_lockPixels() failed !");
 				}
-				FMS_WARN("**********************android_display_process:<%d:%d>\n", ad->bmpinfo.width,ad->bmpinfo.height);
+			
 				(*jenv)->CallVoidMethod(jenv,g_lntVideoWindow,ad->update_id);
 			}
 		}
