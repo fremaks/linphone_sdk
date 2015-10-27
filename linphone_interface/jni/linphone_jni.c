@@ -116,7 +116,7 @@ JNI_OnLoad(JavaVM *jvm, void *reserved) {
 	}
 	jclass h264_codec_class = (*env)->FindClass(env, "com/example/linphone/H264Codec");
 	g_h264_codec_class = (jclass)(*env)->NewGlobalRef(env, h264_codec_class);
-	FMS_WARN("@@@@@@@@@@@@@@@@JNI_OnLoad->g_h264_codec_class=%d\n", g_h264_codec_class);
+	FMS_WARN("JNI_OnLoad->g_h264_codec_class=%d\n", g_h264_codec_class);
 	linphone_base_set_jvm(jvm);
     result = JNI_VERSION_1_4;
 fail:		

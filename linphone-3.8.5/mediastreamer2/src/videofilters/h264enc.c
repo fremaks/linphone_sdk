@@ -46,23 +46,17 @@ static void enc_init(MSFilter *f) {
 	d->generate_keyframe = FALSE;
 	f->data = d;
 
-	FMS_WARN("@@@@@@@@@@@@@@@@@@@@@@@@enc_init 1\n");
 	(*jvm)->AttachCurrentThread(jvm, &jni_env, NULL);
 	//h264_codec_class = (*jni_env)->FindClass(jni_env, "com/example/linphone/H264Codec");
-	FMS_WARN("@@@@@@@@@@@@@@@@@@@@@@@@enc_init 2, h264_codec_class=%d\n", g_h264_codec_class);
 	//g_h264_codec_class = (jclass)(*jni_env)->NewGlobalRef(jni_env, h264_codec_class);
-	FMS_WARN("@@@@@@@@@@@@@@@@@@@@@@@@enc_init 3\n");
 	h264_codec_init_id = (*jni_env)->GetMethodID(jni_env, g_h264_codec_class, "<init>", "(IIIII)V");
 	h264_encode_obj = (*jni_env)->NewObject(jni_env, g_h264_codec_class, h264_codec_init_id, 0, 
 										d->vsize.width, d->vsize.height, d->keyframe_int, d->bitrate);  
 	g_h264_encode_obj = (*jni_env)->NewGlobalRef(jni_env, h264_encode_obj);
 	(*jni_env)->DeleteLocalRef(jni_env, h264_encode_obj);
-	FMS_WARN("@@@@@@@@@@@@@@@@@@@@@@@@enc_init 4\n");
 	g_h264_codec_encode_id = (*jni_env)->GetMethodID(jni_env, g_h264_codec_class, "encode", "([B[B)I");
 	g_h264_codec_close_id = (*jni_env)->GetMethodID(jni_env, g_h264_codec_class, "close", "()V");
-	FMS_WARN("@@@@@@@@@@@@@@@@@@@@@@@@enc_init 5\n");
 	(*jvm)->DetachCurrentThread(jvm);
-	FMS_WARN("@@@@@@@@@@@@@@@@@@@@@@@@enc_init 6\n");
 }
 
 static void enc_uninit(MSFilter *f) {

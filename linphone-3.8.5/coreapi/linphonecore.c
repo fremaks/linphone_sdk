@@ -3366,7 +3366,7 @@ void linphone_core_notify_incoming_call(LinphoneCore *lc, LinphoneCall *call){
 
 		if (propose_early_media){
 			linphone_core_accept_early_media(lc,call);
-		}else sal_call_notify_ringing(call->op,FALSE);
+		}else sal_call_notify_ringing(call->op,TRUE);
 
 		if (sal_call_get_replaces(call->op)!=NULL && lp_config_get_int(lc->config,"sip","auto_answer_replacing_calls",1)){
 			linphone_core_accept_call(lc,call);

@@ -427,7 +427,7 @@ fms_s32 linphone_base_init(const fms_s8 *configfile_name, linphone_event_callbac
 	linphone_core_set_user_agent(g_linphone_core, "Linphone_base",  LINPHONE_VERSION);
 	//linphone_core_set_zrtp_secrets_file(linphonec, zrtpsecrets);
 	//linphone_core_set_user_certificates_path(linphonec,usr_certificates_path);
-	FMS_WARN("@@@@@@@@@@@@@linphone_base_init: cap=%d display=%d\n", vcap_enable, vdisplay_enable);
+	FMS_WARN("linphone_base_init: cap=%d display=%d\n", vcap_enable, vdisplay_enable);
 	linphone_core_enable_video_capture(g_linphone_core, vcap_enable);
 	linphone_core_enable_video_display(g_linphone_core, vdisplay_enable);
 	//set window ID ?
