@@ -217,7 +217,6 @@ static void dec_process(MSFilter *f){
 			decodeM = get_as_yuvmsg(f, d, decode_output, out_sizes);
 			if(decodeM)
 			{
-			//	FMS_WARN("@@@@@@@@@@@@@@@@@dec_process SUCCESS\n");
 				ms_queue_put(f->outputs[0],decodeM);
 			}
 			

@@ -11,6 +11,10 @@
 #ifndef SHADERS_H
 #define SHADERS_H
 
+#ifdef HAVE_CONFIG_H
+#include "mediastreamer-config.h"
+#endif
+
 #include "ortp/port.h"
 
 #ifdef __ios

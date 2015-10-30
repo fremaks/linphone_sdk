@@ -26,7 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <android/bitmap.h>
 
 #include <dlfcn.h>
-
+#include "fms_log.h"
 
 typedef struct AndroidDisplay{
 	jobject android_video_window;
@@ -36,34 +36,35 @@ typedef struct AndroidDisplay{
 	jmethodID request_render_id;
 }AndroidDisplay;
 
+static jclass g_AndroidVideoWindowImplClass;
 
 static void android_display_init(MSFilter *f){
 	AndroidDisplay *ad=(AndroidDisplay*)ms_new0(AndroidDisplay,1);
 	JNIEnv *jenv=NULL;
-	jclass wc;
-
-	jenv=ms_get_jni_env();
-	wc=(*jenv)->FindClass(jenv,"org/linphone/mediastream/video/AndroidVideoWindowImpl");
-	if (wc==0){
-		ms_fatal("Could not find org/linphone/mediastream/video/AndroidVideoWindowImpl class !");
-	}
-	ad->set_opengles_display_id=(*jenv)->GetMethodID(jenv,wc,"setOpenGLESDisplay","(I)V");
-	ad->request_render_id=(*jenv)->GetMethodID(jenv,wc,"requestRender","()V");
+	JavaVM *jvms= ms_get_jvm();
+	(*jvms)->AttachCurrentThread(jvms, &jenv, NULL); 
+	
+	//jenv=ms_get_jni_env();
+	ad->set_opengles_display_id=(*jenv)->GetMethodID(jenv,g_AndroidVideoWindowImplClass,"setOpenGLESDisplay","(I)V");
+	ad->request_render_id=(*jenv)->GetMethodID(jenv,g_AndroidVideoWindowImplClass,"requestRender","()V");
 	if (ad->set_opengles_display_id == 0)
 		ms_error("Could not find 'setOpenGLESDisplay' method\n");
 	if (ad->request_render_id == 0)
 		ms_error("Could not find 'requestRender' method\n");
 	ad->ogl = ogl_display_new();
-
 	f->data=ad;
 	ms_message("%s %p %p", __FUNCTION__, f, ad);
-	(*jenv)->DeleteLocalRef(jenv,wc);
+	
+	(*jvms)->DetachCurrentThread(jvms);
 }
 
 static void android_display_uninit(MSFilter *f){
 	AndroidDisplay *ad=(AndroidDisplay*)f->data;
-	JNIEnv *jenv=ms_get_jni_env();
+	//JNIEnv *jenv=ms_get_jni_env();
+	JNIEnv *jenv=NULL;
+	JavaVM *jvms= ms_get_jvm();
 	ms_message("%s %p %p", __FUNCTION__, f, ad->ogl);
+	(*jvms)->AttachCurrentThread(jvms, &jenv, NULL); 
 	
 	if (ad->ogl) {
 		/* clear native ptr, to prevent rendering to occur now that ptr is invalid */
@@ -73,8 +74,8 @@ static void android_display_uninit(MSFilter *f){
 		ms_free(ad->ogl);
 	}
 	if (ad->android_video_window) (*jenv)->DeleteGlobalRef(jenv, ad->android_video_window);
-
 	ms_free(ad);
+	(*jvms)->DetachCurrentThread(jvms);
 }
 
 static void android_display_preprocess(MSFilter *f){
@@ -84,11 +85,17 @@ static void android_display_process(MSFilter *f){
 	AndroidDisplay *ad=(AndroidDisplay*)f->data;
 	MSPicture pic;
 	mblk_t *m;
+	//JNIEnv *jenv=ms_get_jni_env();
+	JavaVM *jvms= ms_get_jvm();
+	JNIEnv *jenv;
 
+	(*jvms)->AttachCurrentThread(jvms, &jenv, NULL); 
+	
 	ms_filter_lock(f);
 	if (ad->android_video_window){
 		if ((m=ms_queue_peek_last(f->inputs[0]))!=NULL){
 			if (ms_yuv_buf_init_from_mblk (&pic,m)==0){
+				
 				/* schedule display of frame */
 				if (ad->ogl) {
 					/* m is dupb'ed inside ogl_display */
@@ -97,29 +104,33 @@ static void android_display_process(MSFilter *f){
 					ms_warning("%s: opengldisplay not ready (%p)", __FUNCTION__, ad->ogl);
 				}
 				
-				JNIEnv *jenv=ms_get_jni_env();
 				(*jenv)->CallVoidMethod(jenv,ad->android_video_window,ad->request_render_id);
 			}
 		}
 	}
 	ms_filter_unlock(f);
-
 	ms_queue_flush(f->inputs[0]);
-	if (f->inputs[1] != NULL)
+	/*if (f->inputs[1] != NULL) {
+		FMS_WARN("####################android_display_process 5-2\n");
 		ms_queue_flush(f->inputs[1]);
+	}*/
+	(*jvms)->DetachCurrentThread(jvms);
 }
 
 static int android_display_set_window(MSFilter *f, void *arg){
 	AndroidDisplay *ad=(AndroidDisplay*)f->data;
 	unsigned long id=*(unsigned long*)arg;
-	JNIEnv *jenv=ms_get_jni_env();
+	//JNIEnv *jenv=ms_get_jni_env();
+	JavaVM *jvms= ms_get_jvm();
+	JNIEnv *jenv;
 	jobject window=(jobject)id;
 	jobject old_window;
-
+	
+	(*jvms)->AttachCurrentThread(jvms, &jenv, NULL); 
+	
 	if (window == ad->android_video_window) return 0;
 	
 	ms_filter_lock(f);
-	
 	old_window=ad->android_video_window;
 	
 	if (ad->android_video_window) {
@@ -136,15 +147,14 @@ static int android_display_set_window(MSFilter *f, void *arg){
 	if (window) {
 		unsigned int ptr = (unsigned int)ad->ogl;
 		ad->android_video_window=(*jenv)->NewGlobalRef(jenv, window);
-		ms_message("Sending opengles_display pointer as long: %p -> %u", ad->ogl, ptr);
 		(*jenv)->CallVoidMethod(jenv,window,ad->set_opengles_display_id, ptr);
 	}else ad->android_video_window=NULL;
-	
+
 	if (old_window)
 		(*jenv)->DeleteGlobalRef(jenv, old_window);
-
 	ms_filter_unlock(f);
-
+	
+	(*jvms)->DetachCurrentThread(jvms);
 	return 0;
 }
 
@@ -165,7 +175,7 @@ MSFilterDesc ms_android_opengl_display_desc={
 	.name="MSAndroidDisplay",
 	.text="OpenGL-ES2 video display filter for Android.",
 	.category=MS_FILTER_OTHER,
-	.ninputs=2, /*number of inputs*/
+	.ninputs=1, /*number of inputs*/
 	.noutputs=0, /*number of outputs*/
 	.init=android_display_init,
 	.preprocess=android_display_preprocess,
@@ -175,6 +185,18 @@ MSFilterDesc ms_android_opengl_display_desc={
 };
 
 void libmsandroidopengldisplay_init(MSFactory *factory){
+	JNIEnv *jenv=NULL;
+	jclass wc;
+	jenv=ms_get_jni_env();
+	
 	ms_factory_register_filter(factory,&ms_android_opengl_display_desc);
+	
+	wc=(*jenv)->FindClass(jenv,"com/example/linphone/AndroidVideoWindowImpl");
+	if (wc==0){
+		ms_fatal("Could not find com/example/linphone/AndroidVideoWindowImpl class !");
+	}
+	g_AndroidVideoWindowImplClass = (jclass)(*jenv)->NewGlobalRef(jenv, wc);
+	(*jenv)->DeleteLocalRef(jenv, wc);
+	
 	ms_message("MSAndroidDisplay (OpenGL ES2) registered (id=%d).", MS_ANDROID_DISPLAY_ID);
 }

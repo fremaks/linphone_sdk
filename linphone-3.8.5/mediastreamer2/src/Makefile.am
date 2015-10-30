@@ -21,14 +21,16 @@ ANDROID_SRC_FILES= \
 	android/loader.cpp android/loader.h \
 	audiofilters/aac-eld-android.cpp
 
-if BUILD_VIDEO
+#if BUILD_VIDEO
 ANDROID_SRC_FILES += \
 	android/androidvideo.cpp \
 	android/android-display.c \
-	voip/scaler.c
+	voip/scaler.c \
+	android/android-opengl-display.c \
+	utils/shaders.c \
+	utils/opengles_display.c 
 #	android/android-display-bad.cpp \
-#	android/android-opengl-display.c 
-endif
+#endif
 
 EXTRA_DIST= audiofilters/winsnd2.c audiofilters/winsnd.c videofilters/winvideo.c  \
 	videofilters/winvideods.c videofilters/wincevideods.c dxfilter.h dxfilter.cpp \
@@ -345,8 +347,8 @@ voipdescs.h:	Makefile $(libmediastreamer_voip_la_SOURCES) $(libqtcapture_cocoa_l
 
 
 libmediastreamer_base_la_LIBADD = $(ORTP_LIBS) $(FMS_UTILS_LIBS)
-libmediastreamer_base_la_LDFLAGS = -no-undefined -version-info $(LIBMEDIASTREAMER_SO_VERSION) -avoid-version
-libmediastreamer_voip_la_LDFLAGS = -no-undefined -version-info $(LIBMEDIASTREAMER_SO_VERSION) -avoid-version
+libmediastreamer_base_la_LDFLAGS = -no-undefined -version-info $(LIBMEDIASTREAMER_SO_VERSION) -avoid-version 
+libmediastreamer_voip_la_LDFLAGS = -no-undefined -version-info $(LIBMEDIASTREAMER_SO_VERSION) -avoid-version -lGLESv2
 
 if HAVE_LD_OUTPUT_DEF
 libmediastreamer_base_la_LDFLAGS += -Wl,--output-def,libmediastreamer_base-$(LIBMEDIASTREAMER_SO_CURRENT).def

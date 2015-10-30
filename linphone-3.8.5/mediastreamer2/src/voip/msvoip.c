@@ -291,8 +291,7 @@ void ms_factory_init_voip(MSFactory *obj){
 
 #if defined(ANDROID) && defined (VIDEO_ENABLED)
 	if (1) {
-		//libmsandroidopengldisplay_init(obj);
-		libmsandroiddisplay_init(obj);
+		libmsandroidopengldisplay_init(obj);
 	} else {
 		if (!libmsandroiddisplay_init(obj)) {
 			libmsandroiddisplaybad_init(obj);
