@@ -369,7 +369,7 @@ void *linphone_event_thread(void *arg) {
 
 
 fms_s32 linphone_base_init(const fms_s8 *configfile_name, linphone_event_callback event_callback, 
-					  fms_bool vcap_enable, fms_bool vdisplay_enable) {
+					  fms_bool vcap_enable, fms_bool vdisplay_enable, fms_uintptr window_id) {
 
 	LinphoneCoreVTable linphone_vtable = {0};
 
@@ -431,11 +431,10 @@ fms_s32 linphone_base_init(const fms_s8 *configfile_name, linphone_event_callbac
 	linphone_core_enable_video_capture(g_linphone_core, vcap_enable);
 	linphone_core_enable_video_display(g_linphone_core, vdisplay_enable);
 	//set window ID ?
-	/*if (display_enabled && window_id != 0)
-	{
+	if (vdisplay_enable && window_id != 0) {
 		printf("Setting window_id: 0x%x\n", window_id);
-		linphone_core_set_native_video_window_id(linphonec,window_id);
-	}*/
+		linphone_core_set_native_video_window_id(g_linphone_core, window_id);
+	}
 	//linphone_core_enable_video_preview(linphonec,preview_enabled);
 
 	g_linphone_event_queue = fms_queue_new(); 

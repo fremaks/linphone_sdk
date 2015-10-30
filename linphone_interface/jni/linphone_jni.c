@@ -35,11 +35,14 @@ linphone_jni_event_callback(linphone_event *event) {
 
 JNIEXPORT jint JNICALL 
 linphone_jni_init(JNIEnv* env, jobject thiz, jstring jconfigfile_name, 
-					  jboolean jvcap_enable, jboolean jvdisplay_enable) {
+					  jboolean jvcap_enable, jboolean jvdisplay_enable, jobject obj) {
 	jint ret = FMS_FAILED;
 	const fms_s8* configfile_name = (*env)->GetStringUTFChars(env, jconfigfile_name, NULL);
+	if (obj != NULL) {
+		obj = (*env)->NewGlobalRef(env, obj);
+	}
 	ret = linphone_base_init(configfile_name, linphone_jni_event_callback, 
-							jvcap_enable, jvdisplay_enable);
+							jvcap_enable, jvdisplay_enable, (fms_uintptr)obj);
 	(*env)->ReleaseStringUTFChars(env, jconfigfile_name, configfile_name);
 
 	return ret;
@@ -63,7 +66,7 @@ linphone_jni_add_event(JNIEnv* env, jobject thiz, jint jevent_type,
 }
 
 static JNINativeMethod methods[] = { 
-	{"linphone_init", "(Ljava/lang/String;ZZ)I", (void*)linphone_jni_init},
+	{"linphone_init", "(Ljava/lang/String;ZZLcom/example/linphone/AndroidVideoWindowImpl;)I", (void*)linphone_jni_init},
 	{"linphone_uninit", "(I)V", (void*)linphone_jni_uninit},
 	{"linphone_add_event", "(ILjava/lang/String;)V", (void*)linphone_jni_add_event},
 };
