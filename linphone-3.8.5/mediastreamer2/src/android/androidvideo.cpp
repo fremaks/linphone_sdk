@@ -101,11 +101,11 @@ static int global_find_camera_class(void) {
 		goto failed;
 	gCameraClass = (jclass)env->NewGlobalRef(cameraClassTmp);
 	
-	gCameraInitMethod = env->GetMethodID(gCameraClass, "<init>", "(II)V");
+	gCameraInitMethod = env->GetMethodID(gCameraClass, "<init>", "()V");
 	if (0 == gCameraInitMethod) 
 		goto failed;
 
-	cameraObjectTmp = env->NewObject(gCameraClass, gCameraInitMethod, 640, 480);  
+	cameraObjectTmp = env->NewObject(gCameraClass, gCameraInitMethod);  
 	gCameraObject = (jobject)env->NewGlobalRef(cameraObjectTmp);
 	env->DeleteLocalRef(cameraObjectTmp);
 	
@@ -113,7 +113,7 @@ static int global_find_camera_class(void) {
 	if (0 == gDetectCameraMethod) 
 		goto failed;
 	
-	gOpenCameraMethod = env->GetMethodID(gCameraClass, "openCamera", "()V");
+	gOpenCameraMethod = env->GetMethodID(gCameraClass, "openCamera", "(II)V");
 	if (0 == gOpenCameraMethod) 
 		goto failed;
 	
@@ -147,7 +147,7 @@ static void video_capture_preprocess(MSFilter *f){
 
 	if (gOpenCameraMethod) {
 		ms_mutex_lock(&d->mutex);
-		env->CallVoidMethod(gCameraObject, gOpenCameraMethod);
+		env->CallVoidMethod(gCameraObject, gOpenCameraMethod, d->usedSize.width, d->usedSize.height);
 		ms_mutex_unlock(&d->mutex);
 	}
 	
@@ -198,7 +198,8 @@ static int video_capture_get_fps(MSFilter *f, void *arg){
 }
 
 static int video_capture_set_vsize(MSFilter *f, void* data){
-	
+	AndroidReaderContext* d = (AndroidReaderContext*) f->data;
+	d->usedSize = *(MSVideoSize*)data;	
 	return 0;
 }
 
@@ -287,9 +288,9 @@ extern "C" void Java_com_example_linphone_FmsCamera_putImage(JNIEnv *env,
 
 	AndroidReaderContext* d = readerCtx;
 	jbyte* jinternal_buff = env->GetByteArrayElements(jbadyuvframe, 0);
-	
-	//int yuv_size = (d->vsize.width)*(d->vsize.height)*3/2;
-	int yuv_size = 640*480*3/2;
+
+	int yuv_size = (d->usedSize.width)*(d->usedSize.height)*3/2;
+	//int yuv_size = 640*480*3/2;
 	mblk_t *yuv420 = allocb(yuv_size, 0);
 	memcpy(yuv420->b_rptr, jinternal_buff, yuv_size);
 	yuv420->b_wptr += yuv_size;

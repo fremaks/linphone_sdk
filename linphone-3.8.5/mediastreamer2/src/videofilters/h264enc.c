@@ -13,6 +13,7 @@
 //#define ANDROID_MEDIACODEC
 jclass g_h264_codec_class;
 static jobject g_h264_encode_obj;
+static jmethodID g_h264_codec_init_id;
 static jmethodID g_h264_codec_encode_id;
 static jmethodID g_h264_codec_close_id;
 
@@ -29,16 +30,11 @@ typedef struct _EncData {
 
 #include "fms_log.h"
 static void enc_init(MSFilter *f) {
-	MSVideoSize size = {640, 480};
 	EncData *d = ms_new(EncData, 1);
 	JNIEnv *jni_env;
 	JavaVM *jvm = ms_get_jvm();
-	jmethodID h264_codec_init_id;
-	jobject h264_encode_obj;
-	//d->enc = NULL;
+	
 	d->bitrate = 384000;//2000000;//384000;
-	d->vsize = size;
-
 	d->fps = 25;//30;
 	d->keyframe_int = 10; /*10 seconds */
 	d->mode = 0;
@@ -49,11 +45,8 @@ static void enc_init(MSFilter *f) {
 	(*jvm)->AttachCurrentThread(jvm, &jni_env, NULL);
 	//h264_codec_class = (*jni_env)->FindClass(jni_env, "com/example/linphone/H264Codec");
 	//g_h264_codec_class = (jclass)(*jni_env)->NewGlobalRef(jni_env, h264_codec_class);
-	h264_codec_init_id = (*jni_env)->GetMethodID(jni_env, g_h264_codec_class, "<init>", "(IIIII)V");
-	h264_encode_obj = (*jni_env)->NewObject(jni_env, g_h264_codec_class, h264_codec_init_id, 0, 
-										d->vsize.width, d->vsize.height, d->keyframe_int, d->bitrate);  
-	g_h264_encode_obj = (*jni_env)->NewGlobalRef(jni_env, h264_encode_obj);
-	(*jni_env)->DeleteLocalRef(jni_env, h264_encode_obj);
+	g_h264_codec_init_id = (*jni_env)->GetMethodID(jni_env, g_h264_codec_class, "<init>", "(IIIII)V");
+	
 	g_h264_codec_encode_id = (*jni_env)->GetMethodID(jni_env, g_h264_codec_class, "encode", "([B[B)I");
 	g_h264_codec_close_id = (*jni_env)->GetMethodID(jni_env, g_h264_codec_class, "close", "()V");
 	(*jvm)->DetachCurrentThread(jvm);
@@ -66,10 +59,21 @@ static void enc_uninit(MSFilter *f) {
 
 static void enc_preprocess(MSFilter *f) {
 	EncData *d = (EncData*)f->data;
+	jobject h264_encode_obj;
+	JNIEnv *jni_env;
+	JavaVM *jvm = ms_get_jvm();
+	
 	rfc3984_init(&d->packer);
 	rfc3984_set_mode(&d->packer, 1);
 	rfc3984_enable_stap_a(&d->packer, FALSE);
 	d->framenum=0;
+	
+	(*jvm)->AttachCurrentThread(jvm, &jni_env, NULL);
+	h264_encode_obj = (*jni_env)->NewObject(jni_env, g_h264_codec_class, g_h264_codec_init_id, 0, 
+										d->vsize.width, d->vsize.height, d->keyframe_int, d->bitrate);  
+	g_h264_encode_obj = (*jni_env)->NewGlobalRef(jni_env, h264_encode_obj);
+	(*jni_env)->DeleteLocalRef(jni_env, h264_encode_obj);
+	(*jvm)->DetachCurrentThread(jvm);
 }
 
 
@@ -82,7 +86,8 @@ void enc_process(MSFilter *f){
 	MSQueue nalus;
 	
 	//static uint64_t last_time = 0;
-	static unsigned char out_buf[640*480*10];
+	//static unsigned char out_buf[640*480*10];
+	static unsigned char out_buf[1080*720*3];
 	static char sps[9];
 	static char pps[4];
 	int h264_encode_size = 0;
@@ -175,10 +180,50 @@ static void enc_postprocess(MSFilter *f){
 	rfc3984_uninit(&d->packer);
 }
 
+static int enc_support_pixfmt(MSFilter *f, void *arg) { 
+	MSVideoEncoderPixFmt *encoder_supports_source_format = (MSVideoEncoderPixFmt *)arg;
+	if (encoder_supports_source_format->pixfmt  != MS_YUV420P) {
+		return -1;
+	}
+	encoder_supports_source_format->supported = TRUE;
+	return 0;
+}
 
-/*static MSFilterMethod enc_methods[]={
+static int enc_set_video_size(MSFilter *f, void *arg) {
+	EncData *d = (EncData*)f->data;
+	MSVideoSize *vs = (MSVideoSize *)arg;
+	d->vsize = *vs;
+	return 0;
+}
 
-};*/
+static int enc_get_video_size(MSFilter *f, void *arg) {
+	EncData *d = (EncData*)f->data;
+	MSVideoSize *vs = (MSVideoSize *)arg;
+	*vs = d->vsize;
+	return 0;
+}
+
+static int enc_set_fps(MSFilter *f, void *arg) {
+	EncData *d = (EncData*)f->data;
+	float *fps = (float *)arg;
+	d->fps= *fps;
+	return 0;
+}
+
+static int enc_get_fps(MSFilter *f, void *arg) {
+	EncData *d = (EncData*)f->data;
+	float *fps = (float *)arg;
+	*fps = d->fps;
+	return 0;
+}
+
+static MSFilterMethod enc_methods[]={
+	{	MS_VIDEO_ENCODER_SUPPORTS_PIXFMT, enc_support_pixfmt},
+	{   MS_FILTER_SET_VIDEO_SIZE, enc_set_video_size},
+	{	MS_FILTER_GET_VIDEO_SIZE, enc_get_video_size},
+	{ 	MS_FILTER_SET_FPS, enc_set_fps},
+	{ 	MS_FILTER_GET_FPS, enc_get_fps},
+};
 
 MSFilterDesc ms_h264_enc_desc={
 	MS_H264_ENC_ID,
@@ -193,7 +238,7 @@ MSFilterDesc ms_h264_enc_desc={
 	enc_process,
 	enc_postprocess,
 	enc_uninit,
-	NULL //enc_methods
+	enc_methods
 };
 
 MS_FILTER_DESC_EXPORT(ms_h264_enc_desc)

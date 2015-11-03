@@ -761,11 +761,11 @@ int video_stream_start_with_source (VideoStream *stream, RtpProfile *profile, co
 		ms_connection_helper_start(&ch);
 		ms_connection_helper_link(&ch, stream->source, -1, 0);
 		if (stream->pixconv) {
-			//ms_connection_helper_link(&ch, stream->pixconv, 0, 0);
+			ms_connection_helper_link(&ch, stream->pixconv, 0, 0);
 		}
-		//ms_connection_helper_link(&ch, stream->tee, 0, 0);
+		ms_connection_helper_link(&ch, stream->tee, 0, 0);
 		if (stream->sizeconv) {
-			//ms_connection_helper_link(&ch, stream->sizeconv, 0, 0);
+			ms_connection_helper_link(&ch, stream->sizeconv, 0, 0);
 		}
 		if (stream->source_performs_encoding == FALSE) {
 			ms_connection_helper_link(&ch, stream->ms.encoder, 0, 0);
@@ -1102,11 +1102,11 @@ video_stream_stop (VideoStream * stream)
 				ms_connection_helper_start(&ch);
 				ms_connection_helper_unlink(&ch, stream->source, -1, 0);
 				if (stream->pixconv) {
-					//ms_connection_helper_unlink(&ch, stream->pixconv, 0, 0);
+					ms_connection_helper_unlink(&ch, stream->pixconv, 0, 0);
 				}
-				//ms_connection_helper_unlink(&ch, stream->tee, 0, 0);
+				ms_connection_helper_unlink(&ch, stream->tee, 0, 0);
 				if (stream->sizeconv) {
-					//ms_connection_helper_unlink(&ch, stream->sizeconv, 0, 0);
+					ms_connection_helper_unlink(&ch, stream->sizeconv, 0, 0);
 				}
 				if (stream->source_performs_encoding == FALSE) {
 					ms_connection_helper_unlink(&ch, stream->ms.encoder, 0, 0);

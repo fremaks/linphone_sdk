@@ -370,9 +370,9 @@ void *linphone_event_thread(void *arg) {
 
 fms_s32 linphone_base_init(const fms_s8 *configfile_name, linphone_event_callback event_callback, 
 					  fms_bool vcap_enable, fms_bool vdisplay_enable, fms_uintptr window_id) {
-
 	LinphoneCoreVTable linphone_vtable = {0};
-
+	MSVideoSize vsize = {320, 240};
+	
 	if (g_linphone_runing_flag) {
 		FMS_ERROR("linphone has aleardy init\n");
 		return FMS_FAILED;
@@ -436,7 +436,9 @@ fms_s32 linphone_base_init(const fms_s8 *configfile_name, linphone_event_callbac
 		linphone_core_set_native_video_window_id(g_linphone_core, window_id);
 	}
 	//linphone_core_enable_video_preview(linphonec,preview_enabled);
+	linphone_core_set_preview_video_size(g_linphone_core, vsize);
 
+	
 	g_linphone_event_queue = fms_queue_new(); 
 	pthread_mutex_init(&g_linphone_event_queue_lock, NULL);
 	g_linphone_runing_flag = FMS_TRUE;

@@ -47,7 +47,7 @@ typedef struct _DecData{
 
 
 
-unsigned char decode_output[800*480*3/2];
+unsigned char decode_output[1080*720*3/2];
 
 extern jclass g_h264_codec_class;
 static jobject g_h264_decode_obj;
@@ -83,7 +83,7 @@ static void dec_init(MSFilter *f){
 	(*jvm)->AttachCurrentThread(jvm, &jni_env, NULL);
 	h264_codec_init_id = (*jni_env)->GetMethodID(jni_env, g_h264_codec_class, "<init>", "(IIIII)V");
 	h264_decode_obj = (*jni_env)->NewObject(jni_env, g_h264_codec_class, h264_codec_init_id, 1, 
-								             800, 480, 0, 0);
+								             1080, 720, 0, 0);
 	
 	g_h264_decode_obj = (*jni_env)->NewGlobalRef(jni_env, h264_decode_obj);
 	(*jni_env)->DeleteLocalRef(jni_env, h264_decode_obj);
@@ -196,9 +196,9 @@ static void dec_process(MSFilter *f){
 			(*jni_env)->SetByteArrayRegion(jni_env, input_data, 4, in_size, (jbyte*)oneNalu->b_rptr);
 	
 			
-			output_data = (*jni_env)->NewByteArray(jni_env, 800*480*3/2); 
+			output_data = (*jni_env)->NewByteArray(jni_env, 1080*720*3/2); 
 			out_sizes = (*jni_env)->CallIntMethod(jni_env, g_h264_decode_obj, g_h264_codec_decode_id, input_data, output_data);
-			if (out_sizes != 800*480*3/2) {
+			if (out_sizes <= 0) {
 				(*jni_env)->DeleteLocalRef(jni_env, input_data);
 				(*jni_env)->DeleteLocalRef(jni_env, output_data);
 				break;

@@ -160,7 +160,9 @@ int ms_filter_call_method(MSFilter *f, unsigned int id, void *arg){
 	/*compatibility stuff*/
 	if (id==MS_AUDIO_DECODER_SET_RTP_PAYLOAD_PICKER && !ms_filter_has_method(f,MS_AUDIO_DECODER_SET_RTP_PAYLOAD_PICKER))
 		id=MS_FILTER_SET_RTP_PAYLOAD_PICKER;
-	return _ms_filter_call_method(f,id,arg);
+	if (ms_filter_has_method(f, id))
+		return _ms_filter_call_method(f,id,arg);
+	return -1;
 }
 
 bool_t ms_filter_has_method(MSFilter *f, unsigned int id){
