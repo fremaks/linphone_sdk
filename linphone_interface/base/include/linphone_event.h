@@ -26,6 +26,8 @@ typedef enum {
     LINPHONE_ANSWER_RESPBONSE,          //retValue>
     LINPHONE_HANGUP_REQUEST,
     LINPHONE_HANGUP_RESPBONSE,          //retValue>
+    LINPHONE_CAMERA_SWITCH_REQUEST,		//Swicth_code>
+    LINPHONE_CAMERA_SWITCH_RESPBONSE,	//retValue
     LINPHONE_EVENT_UNKNOW
 } linphone_event_type;
 

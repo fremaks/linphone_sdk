@@ -233,7 +233,7 @@ static MSWebCamDesc * ms_web_cam_descs[]={
 	&ms_v4ios_cam_desc,
 #endif
 //	&ms_mire_webcam_desc,
-//	&static_image_desc,
+	&static_image_desc,
 #endif /*MS2_FILTERS */
 	NULL
 };

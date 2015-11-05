@@ -268,6 +268,34 @@ linphone_answer(LinphoneCore *lc){
 	return linphone_core_accept_call(lc, NULL);
 }
 
+static fms_s32 
+linphone_camera_swicth(LinphoneCore *lc, fms_bool swicth) {
+	LinphoneCall *call=linphone_core_get_current_call(lc);
+	if (FMS_FALSE == linphone_core_video_enabled(lc)) {
+		FMS_WARN("Video is disabled, re-run linphonec with video\n");
+		return FMS_FAILED;
+	}
+
+	if (NULL == call){ 
+		FMS_WARN("~~~~~~~~~~~~~~~not happen~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+	} else{
+		const LinphoneCallParams *cp = linphone_call_get_current_params(call);
+		linphone_call_enable_camera(call, swicth);
+		if (LinphoneCallStreamsRunning == linphone_call_get_state(call)){
+			if ((swicth && !linphone_call_params_video_enabled(cp))) {
+				/*update the call to add the video stream*/
+				LinphoneCallParams *ncp = linphone_call_params_copy(cp);
+				linphone_call_params_enable_video(ncp, FMS_TRUE);
+				linphone_core_update_call(lc, call, ncp);
+				linphone_call_params_destroy(ncp);
+				FMS_WARN("Trying to bring up video stream...\n");
+			 }
+        }
+	}
+
+    return FMS_SUCCESS;
+}
+
 static fms_void
 linphone_event_handle(linphone_event *event) {
 	linphone_event *ret_event = NULL;
@@ -326,7 +354,13 @@ linphone_event_handle(linphone_event *event) {
 			//sprintf(ret_data, "%d>", ret);
 			break;
 		}
-		
+
+		case LINPHONE_CAMERA_SWITCH_REQUEST : {
+			fms_s32 swicth_code = 0;
+			sscanf(event->data, "%d>", &swicth_code);
+			ret = linphone_camera_swicth(g_linphone_core, swicth_code == 0 ? FMS_FALSE : FMS_TRUE);
+			break;
+		}
 		default : {
 			FMS_ERROR("unknow event type=%d\n", event->type);
 			break;

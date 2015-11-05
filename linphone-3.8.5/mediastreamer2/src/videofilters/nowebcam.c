@@ -366,10 +366,10 @@ void static_image_process(MSFilter *f){
 	if ((f->ticker->time - d->lasttime>frame_interval) || d->lasttime==0){
 		ms_mutex_lock(&f->lock);
 		if (d->pic) {
-			mblk_t *o=dupmsg(d->pic);
+			//mblk_t *o=dupmsg(d->pic);
 			/*prevent mirroring at the output*/
-			mblk_set_precious_flag(o,1);
-			ms_queue_put(f->outputs[0],o);
+			//mblk_set_precious_flag(o,1);
+			//ms_queue_put(f->outputs[0],o);
 		}
 		ms_filter_unlock(f);
 		d->lasttime=f->ticker->time;
