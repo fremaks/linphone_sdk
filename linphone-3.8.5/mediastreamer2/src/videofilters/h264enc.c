@@ -108,39 +108,62 @@ void enc_process(MSFilter *f){
 
 		h264_encode_size = im->b_wptr - im->b_rptr;	
 		//last_time = f->ticker->time; 	
-
 		input_data = (*jni_env)->NewByteArray(jni_env, h264_encode_size); 
 		(*jni_env)->SetByteArrayRegion(jni_env, input_data, 0, h264_encode_size, (jbyte*)im->b_rptr);
 		output_data = (*jni_env)->NewByteArray(jni_env, h264_encode_size); 
-	
 		out_sizes = (*jni_env)->CallIntMethod(jni_env, g_h264_encode_obj, g_h264_codec_encode_id, input_data, output_data);
 		(*jni_env)->GetByteArrayRegion(jni_env, output_data, 0, out_sizes, (jbyte*)out_buf);
 	
 		(*jni_env)->DeleteLocalRef(jni_env, input_data);
 		(*jni_env)->DeleteLocalRef(jni_env, output_data);
-		
 		//FMS_WARN("++++++++++++++++++++====================enc_process size=%d\n", out_sizes);
+
+		pos = (char *)out_buf;
+		while (out_sizes > 4) {
+			if (pos[4] == 0x67 && out_sizes > 13) {
+				memcpy(sps, pos + 4, 9);
+				sps_t =allocb(9, 0); 
+				memcpy(sps_t->b_rptr, sps, 9);
+				sps_t->b_wptr+= 9;
+				ms_queue_put(&nalus, sps_t);
+				pos += 13;
+				out_sizes -= 13;
+			} else if (pos[4] == 0x68 && out_sizes > 8) {
+				memcpy(pps, pos + 4, 4);
+				pps_t =allocb(4, 0); 
+				memcpy(sps_t->b_rptr, pps, 4);
+				pps_t->b_wptr+= 4;
+				ms_queue_put(&nalus, pps_t);
+				pos += 8;
+				out_sizes -= 8;
+			} else {
+				om=allocb(out_sizes-4 ,0); // delete start_code
+				memcpy(om->b_wptr, pos + 4, out_sizes - 4);
+				om->b_wptr+= out_sizes - 4;
+				ms_queue_put(&nalus,om);
+				out_sizes = 0;
+			}
+			
+				
+		}
+#if	0	
 		if (out_sizes > 0) { //encode ok 4+9+4+4
 			pos = (char *)out_buf;
 			pos += 10;
 			
 			if(out_buf[4] == 0x67 && out_buf[17] == 0x68) {  //SPS PPS
 				memcpy(sps, out_buf+4, 9);
-				
 				sps_t =allocb(9, 0); 
 				memcpy(sps_t->b_rptr, sps, 9);
 				sps_t->b_wptr+= 9;
 				ms_queue_put(&nalus, sps_t);
 				pos = (char *)sps_t->b_rptr;
-				
 				memcpy(pps, out_buf+17, 4);
-				
 				pps_t =allocb(4, 0); 
 				memcpy(pps_t->b_rptr, pps, 4);
 				pps_t->b_wptr+= 4;	
 				ms_queue_put(&nalus, pps_t);
 				pos = (char *)pps_t->b_rptr;
-				
 				om=allocb(out_sizes-4-21 ,0); // delete start_code
 				memcpy(om->b_wptr, out_buf+4+21, out_sizes-4-21);
 				om->b_wptr+= out_sizes-4-21;
@@ -165,12 +188,12 @@ void enc_process(MSFilter *f){
 			}
 
 		}
+#endif
 		rfc3984_pack(&d->packer,&nalus,f->outputs[0],ts);
 		d->framenum++;
 		freemsg(im);
 		
 	}
-	
 	(*jvm)->DetachCurrentThread(jvm);
 
 }
