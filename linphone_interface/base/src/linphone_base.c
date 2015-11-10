@@ -361,6 +361,13 @@ linphone_event_handle(linphone_event *event) {
 			ret = linphone_camera_swicth(g_linphone_core, swicth_code == 0 ? FMS_FALSE : FMS_TRUE);
 			break;
 		}
+
+		case LINPHONE_SNED_DTMF_REQUEST : {
+			fms_s8 dtmf = 0;
+			sscanf(event->data, "%c>", &dtmf);
+			linphone_core_send_dtmf(g_linphone_core, dtmf);
+			break;
+		}
 		default : {
 			FMS_ERROR("unknow event type=%d\n", event->type);
 			break;

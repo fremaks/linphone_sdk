@@ -108,14 +108,17 @@ void enc_process(MSFilter *f){
 
 		h264_encode_size = im->b_wptr - im->b_rptr;	
 		//last_time = f->ticker->time; 	
+
 		input_data = (*jni_env)->NewByteArray(jni_env, h264_encode_size); 
 		(*jni_env)->SetByteArrayRegion(jni_env, input_data, 0, h264_encode_size, (jbyte*)im->b_rptr);
 		output_data = (*jni_env)->NewByteArray(jni_env, h264_encode_size); 
+	
 		out_sizes = (*jni_env)->CallIntMethod(jni_env, g_h264_encode_obj, g_h264_codec_encode_id, input_data, output_data);
 		(*jni_env)->GetByteArrayRegion(jni_env, output_data, 0, out_sizes, (jbyte*)out_buf);
 	
 		(*jni_env)->DeleteLocalRef(jni_env, input_data);
 		(*jni_env)->DeleteLocalRef(jni_env, output_data);
+		
 		//FMS_WARN("++++++++++++++++++++====================enc_process size=%d\n", out_sizes);
 
 		pos = (char *)out_buf;
@@ -153,17 +156,21 @@ void enc_process(MSFilter *f){
 			
 			if(out_buf[4] == 0x67 && out_buf[17] == 0x68) {  //SPS PPS
 				memcpy(sps, out_buf+4, 9);
+				
 				sps_t =allocb(9, 0); 
 				memcpy(sps_t->b_rptr, sps, 9);
 				sps_t->b_wptr+= 9;
 				ms_queue_put(&nalus, sps_t);
 				pos = (char *)sps_t->b_rptr;
+				
 				memcpy(pps, out_buf+17, 4);
+				
 				pps_t =allocb(4, 0); 
 				memcpy(pps_t->b_rptr, pps, 4);
 				pps_t->b_wptr+= 4;	
 				ms_queue_put(&nalus, pps_t);
 				pos = (char *)pps_t->b_rptr;
+				
 				om=allocb(out_sizes-4-21 ,0); // delete start_code
 				memcpy(om->b_wptr, out_buf+4+21, out_sizes-4-21);
 				om->b_wptr+= out_sizes-4-21;
@@ -194,6 +201,7 @@ void enc_process(MSFilter *f){
 		freemsg(im);
 		
 	}
+	
 	(*jvm)->DetachCurrentThread(jvm);
 
 }
