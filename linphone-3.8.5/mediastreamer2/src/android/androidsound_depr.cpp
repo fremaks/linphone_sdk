@@ -112,9 +112,7 @@ static int sdk_version=0;
 void msandroid_sound_init(MSSndCard *card){
 	/*get running sdk version*/
 	JNIEnv *jni_env = ms_get_jni_env();
-	//FMS_WARN("@@@@@@@@@@@@@@@@@msandroid_sound_init1:env=%p\n", jni_env);
 	jclass version_class = jni_env->FindClass("android/os/Build$VERSION");
-	//FMS_WARN("@@@@@@@@@@@@@@@@@msandroid_sound_init2\n");
 	jfieldID fid = jni_env->GetStaticFieldID(version_class, "SDK_INT", "I");
 	sdk_version=jni_env->GetStaticIntField(version_class, fid);
 	ms_message("SDK version [%i] detected",sdk_version);
@@ -221,9 +219,7 @@ static unsigned int get_supported_rate(unsigned int prefered_rate) {
     	ms_fatal("AttachCurrentThread() failed !");
         return 8000;
     }
-	//FMS_WARN("@@@@@@@@@@@@@@@@@get_supported_rate 1:env=%p\n", jni_env);
 	jclass audio_record_class = jni_env->FindClass("android/media/AudioRecord");
-	//FMS_WARN("@@@@@@@@@@@@@@@@@get_supported_rate 2\n");
 	int size = jni_env->CallStaticIntMethod(audio_record_class
 											,jni_env->GetStaticMethodID(audio_record_class,"getMinBufferSize", "(III)I")
 											,prefered_rate
@@ -347,9 +343,7 @@ static void* msandroid_read_cb(msandroid_sound_read_data* d) {
         ms_fatal("AttachCurrentThread() failed !");
         goto end;
     }
-	//FMS_WARN("@@@@@@@@@@@@@@@@@msandroid_read_cb 1:env=%p\n", jni_env);
 	record_id = jni_env->GetMethodID(d->audio_record_class,"startRecording", "()V");
-	//FMS_WARN("@@@@@@@@@@@@@@@@@msandroid_read_cb 2\n");
 	if(record_id==0) {
 		ms_error("cannot find AudioRecord.startRecording() method");
 		goto end;
@@ -401,9 +395,7 @@ static void sound_read_setup(MSFilter *f){
         return;
     }
 	
-	//FMS_WARN("@@@@@@@@@@@@@@@@@sound_read_setup 1:env=%p\n", jni_env);
 	d->audio_record_class = (jclass)jni_env->NewGlobalRef(jni_env->FindClass("android/media/AudioRecord"));
-	//FMS_WARN("@@@@@@@@@@@@@@@@@sound_read_setup 2\n");
 	if (d->audio_record_class == 0) {
 		ms_error("cannot find android/media/AudioRecord");
 		jvm->DetachCurrentThread();
@@ -500,9 +492,7 @@ static void sound_read_preprocess(MSFilter *f){
         }
 		jmethodID getsession_id=0;
 		int sessionId=-1;
-		//FMS_WARN("@@@@@@@@@@@@@@@@@sound_read_preprocess 1:env=%p\n", env);
 		getsession_id = env->GetMethodID(d->audio_record_class,"getAudioSessionId", "()I");
-		//FMS_WARN("@@@@@@@@@@@@@@@@@sound_read_preprocess 2\n");
 		if(getsession_id==0) {
 			ms_error("cannot find AudioRecord.getAudioSessionId() method");
 			jvm->DetachCurrentThread();
@@ -533,10 +523,9 @@ static void sound_read_postprocess(MSFilter *f){
     }
 	ms_ticker_set_time_func(f->ticker,NULL,NULL);
 	d->read_samples=0;
-	//FMS_WARN("@@@@@@@@@@@@@@@@@[%d] 1:env=%p\n", __LINE__, jni_env);
+
 	//stop recording
 	stop_id = jni_env->GetMethodID(d->audio_record_class,"stop", "()V");
-	//FMS_WARN("@@@@@@@@@@@@@@@@@[%d] 2:env=%p\n", __LINE__, jni_env);
 	if(stop_id==0) {
 		ms_error("cannot find AudioRecord.stop() method");
 		goto end;
@@ -687,11 +676,8 @@ public:
 		
 		//JNIEnv *jni_env = ms_get_jni_env();
 		jclass temp_class = 0;
-		//FMS_WARN("@@@@@@@@@@@@@@@@@[%d] 1:env=%p\n", __LINE__, jni_env);
 		temp_class = jni_env->FindClass("android/media/AudioTrack");
-		//FMS_WARN("@@@@@@@@@@@@@@@@@[%d] 2:temp_class=%d\n", __LINE__, temp_class);
 		audio_track_class = (jclass)jni_env->NewGlobalRef(temp_class);
-		//FMS_WARN("@@@@@@@@@@@@@@@@@[%d] 3:env=%p\n", __LINE__, jni_env);
 		if (audio_track_class == 0) {
 			ms_error("cannot find  android/media/AudioTrack\n");
 			return;
@@ -717,9 +703,7 @@ public:
 	        if (jvm->AttachCurrentThread(&env, NULL)!=0){
 	            ms_fatal("AttachCurrentThread() failed !");
 	        }
-			//FMS_WARN("@@@@@@@@@@@@@@@@@[%d] 1:env=%p\n", __LINE__, env);
 			env->DeleteGlobalRef(audio_track_class);
-			//FMS_WARN("@@@@@@@@@@@@@@@@@[%d] 2:env=%p\n", __LINE__, env);
 			jvm->DetachCurrentThread();
 		}
 	}
@@ -760,9 +744,7 @@ static void* msandroid_write_cb(msandroid_sound_write_data* d) {
         goto end;
     }
 	// int write  (byte[] audioData, int offsetInBytes, int sizeInBytes)
-	//FMS_WARN("@@@@@@@@@@@@@@@@@[%d] 1:env=%p\n", __LINE__, jni_env);
 	write_id = jni_env->GetMethodID(d->audio_track_class,"write", "([BII)I");
-	//FMS_WARN("@@@@@@@@@@@@@@@@@[%d] 2:env=%p\n", __LINE__, jni_env);
 	if(write_id==0) {
 		ms_error("cannot find AudioTrack.write() method");
 		goto end;
@@ -844,14 +826,13 @@ void msandroid_sound_write_preprocess(MSFilter *f){
         ms_fatal("AttachCurrentThread() failed !");
         return;
     }
-	//FMS_WARN("@@@@@@@@@@@@@@@@@[%d] 1:env=%p\n", __LINE__, jni_env);
+
 	if (d->audio_track_class == 0) {
 		jvm->DetachCurrentThread();
 		return;
 	}
 
 	constructor_id = jni_env->GetMethodID(d->audio_track_class,"<init>", "(IIIIII)V");
-	//FMS_WARN("@@@@@@@@@@@@@@@@@[%d] 2:env=%p\n", __LINE__, jni_env);
 	if (constructor_id == 0) {
 		ms_error("cannot find  AudioTrack(int streamType, int sampleRateInHz, \
 		int channelConfig, int audioFormat, int bufferSizeInBytes, int mode)");
@@ -925,7 +906,6 @@ void msandroid_sound_write_postprocess(MSFilter *f){
         ms_fatal("AttachCurrentThread() failed !");
         return;
    	}
-	//FMS_WARN("@@@@@@@@@@@@@@@@@[%d] 1:env=%p\n", __LINE__, jni_env);
 	d->started=false;
 	ms_mutex_lock(&d->mutex);
 	ms_cond_signal(&d->cond);
@@ -933,7 +913,6 @@ void msandroid_sound_write_postprocess(MSFilter *f){
 	ms_thread_join(d->thread_id,0);
 	// flush
 	flush_id = jni_env->GetMethodID(d->audio_track_class,"flush", "()V");
-	//FMS_WARN("@@@@@@@@@@@@@@@@@[%d] 2:env=%p\n", __LINE__, jni_env);
 	if(flush_id==0) {
 		ms_error("cannot find AudioTrack.flush() method");
 		goto end;
@@ -1046,10 +1025,8 @@ static int msandroid_hack_speaker_state(MSFilter *f, void *arg) {
     	ms_fatal("AttachCurrentThread() failed !");
         return -1;
     }
-	//FMS_WARN("@@@@@@@@@@@@@@@@@[%d] 1:env=%p\n", __LINE__, jni_env);
 	// First, check that required methods are found
 	jclass LinphoneManager_class = (jclass)jni_env->NewGlobalRef(jni_env->FindClass("org/linphone/LinphoneManager"));
-	//FMS_WARN("@@@@@@@@@@@@@@@@@[%d] 2:env=%p\n", __LINE__, jni_env);
 	if (LinphoneManager_class == 0) {
 		ms_error("Cannot find org/linphone/LinphoneManager");
 		jvm->DetachCurrentThread();

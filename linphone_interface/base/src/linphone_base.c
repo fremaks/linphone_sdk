@@ -17,13 +17,18 @@
 
 #define LINPHONE_VERSION "3.8.5"
 
-static LinphoneCore *g_linphone_core = NULL;
-static linphone_event_callback g_event_callback = NULL;
-static fms_bool g_linphone_runing_flag = FMS_FALSE; 
-static pthread_t g_linphone_event_thread_t;
-static fms_queue *g_linphone_event_queue = NULL;
-static pthread_mutex_t g_linphone_event_queue_lock;
-static fms_s8 g_display_status[512] = {0};
+
+typedef struct _linphone_base_conext {
+	LinphoneCore *lc; 
+	linphone_event_callback event_callback_ptr;
+	fms_bool runing_flag;
+	pthread_t event_thread_t;
+	fms_queue *event_queue;
+	pthread_mutex_t event_queue_lock;
+	fms_s8 display_status[512];
+} linphone_base_context;
+
+linphone_base_context *base_ctx = NULL;
 
 static fms_void 
 linphone_registration_state_changed(LinphoneCore *lc, LinphoneCall *call, 
@@ -32,7 +37,7 @@ linphone_registration_state_changed(LinphoneCore *lc, LinphoneCall *call,
 	linphone_event_type event_type = LINPHONE_EVENT_UNKNOW;
 	fms_s8 event_data[DATA_MAX_LEN] = {0};
 	
-	if (g_event_callback != NULL) {
+	if (base_ctx->event_callback_ptr != NULL) {
 		switch (st) {
 			case LinphoneRegistrationOk : {
 				event_type = LINPHONE_REGISTER_RESPBONSE;
@@ -52,7 +57,7 @@ linphone_registration_state_changed(LinphoneCore *lc, LinphoneCall *call,
 		
 		if (event_type != LINPHONE_EVENT_UNKNOW) {
 			event = linphone_event_init(event_type, event_data);
-			(*g_event_callback)(event);
+			(*(base_ctx->event_callback_ptr))(event);
 			linphone_event_uninit(event);			
 		}
 	}
@@ -61,18 +66,18 @@ linphone_registration_state_changed(LinphoneCore *lc, LinphoneCall *call,
 
 static fms_void 
 linphone_call_state_changed(LinphoneCore *lc, LinphoneCall *call, 
-							LinphoneCallState st, const fms_s8 *msg) {
+                                       LinphoneCallState st, const fms_s8 *msg) {
 	linphone_event *event = NULL;
 	linphone_event_type event_type = LINPHONE_EVENT_UNKNOW;
 	fms_s8 event_data[DATA_MAX_LEN] = {0};
 	
 	FMS_INFO("linphone_call_state_changed->msg=%s[%d]\n", msg, st);
 	
-	if (g_event_callback != NULL) {
+	if (base_ctx->event_callback_ptr != NULL) {
 		switch (st) {
 			case LinphoneCallIncomingReceived : { //remote call,msgÖĞÃ»ÓĞ¶Ô·½µÄ
 				event_type = LINPHONE_CALL_REQUEST;
-				sprintf(event_data, "%s>", g_display_status);//houseno
+				sprintf(event_data, "%s>", base_ctx->display_status);//houseno
 				break;
 			}
 			
@@ -118,7 +123,7 @@ linphone_call_state_changed(LinphoneCore *lc, LinphoneCall *call,
 		
 		if (event_type != LINPHONE_EVENT_UNKNOW) {
 			event = linphone_event_init(event_type, event_data);
-			(*g_event_callback)(event);
+			(*(base_ctx->event_callback_ptr))(event);
 			linphone_event_uninit(event);			
 		}
 	}
@@ -147,8 +152,8 @@ linphone_prompt_for_auth(LinphoneCore *lc, const fms_s8 *realm,
 static fms_void 
 linphone_display_status(LinphoneCore * lc, const fms_s8 *something) {
 	FMS_INFO("linphone_display_status->something=%s\n", something);
-	memset(g_display_status, 0, sizeof(g_display_status));
-	strcpy(g_display_status, something);
+	memset(base_ctx->display_status, 0, sizeof(base_ctx->display_status));
+	strcpy(base_ctx->display_status, something);
 }
 
 static fms_void
@@ -223,7 +228,7 @@ linphone_register(LinphoneCore *lc, const fms_s8 *username, const fms_s8 *passwo
 	linphone_proxy_config_enable_register(cfg, FMS_TRUE);
 	linphone_proxy_config_enable_publish(cfg, FMS_TRUE);
 	FMS_EQUAL_RETURN_VALUE(linphone_core_add_proxy_config(lc,cfg), FMS_FAILED, FMS_FAILED);
-	linphone_core_set_default_proxy(lc,cfg);
+	linphone_core_set_default_proxy(lc, cfg);
 
 	return FMS_SUCCESS;
 }
@@ -302,6 +307,7 @@ linphone_event_handle(linphone_event *event) {
 	fms_s8 ret_data[DATA_MAX_LEN] = {0};
 	linphone_event_type ret_type = LINPHONE_EVENT_UNKNOW;
 	fms_s32 ret = FMS_FAILED;
+	LinphoneCore *lc = base_ctx->lc;
 	
 	FMS_EQUAL_RETURN(event, NULL);
 
@@ -313,7 +319,7 @@ linphone_event_handle(linphone_event *event) {
 			fms_s8 proxy[IP_MAX_LEN] = {0};
 			
 			sscanf(event->data, "%[^>]>%[^>]>%[^>]>", houseno, password, proxy);
-			ret = linphone_register(g_linphone_core, houseno, password, proxy);
+			ret = linphone_register(lc, houseno, password, proxy);
 			if (ret != FMS_SUCCESS) {
 				ret_type = LINPHONE_REGISTER_RESPBONSE;
 				sprintf(ret_data, "%d>", FMS_FAILED);
@@ -328,7 +334,7 @@ linphone_event_handle(linphone_event *event) {
 			fms_bool early_media = FMS_FALSE;
 			
 			sscanf(event->data, "%[^>]>%d>%d>", call_houseno, &has_video, &early_media);
-			ret = linphone_call(g_linphone_core, call_houseno, has_video, early_media);
+			ret = linphone_call(lc, call_houseno, has_video, early_media);
 			if (ret != FMS_SUCCESS) {
 				ret_type = LINPHONE_CALL_RESPBONSE;
 				sprintf(ret_data, "%d>", FMS_FAILED);
@@ -342,14 +348,14 @@ linphone_event_handle(linphone_event *event) {
 		}
 		
 		case LINPHONE_ANSWER_REQUEST : {
-			ret = linphone_answer(g_linphone_core);
+			ret = linphone_answer(lc);
 			//ret_type = LINPHONE_ANSWER_RESPBONSE;
 			//sprintf(ret_data, "%d>", ret);
 			break;
 		}
 		
 		case LINPHONE_HANGUP_REQUEST : {
-			ret = linphone_hangup(g_linphone_core);
+			ret = linphone_hangup(lc);
 			//ret_type = LINPHONE_HANGUP_RESPBONSE;
 			//sprintf(ret_data, "%d>", ret);
 			break;
@@ -358,14 +364,14 @@ linphone_event_handle(linphone_event *event) {
 		case LINPHONE_CAMERA_SWITCH_REQUEST : {
 			fms_s32 swicth_code = 0;
 			sscanf(event->data, "%d>", &swicth_code);
-			ret = linphone_camera_swicth(g_linphone_core, swicth_code == 0 ? FMS_FALSE : FMS_TRUE);
+			ret = linphone_camera_swicth(lc, swicth_code == 0 ? FMS_FALSE : FMS_TRUE);
 			break;
 		}
 
 		case LINPHONE_SNED_DTMF_REQUEST : {
 			fms_s8 dtmf = 0;
 			sscanf(event->data, "%c>", &dtmf);
-			linphone_core_send_dtmf(g_linphone_core, dtmf);
+			linphone_core_send_dtmf(lc, dtmf);
 			break;
 		}
 		default : {
@@ -374,52 +380,60 @@ linphone_event_handle(linphone_event *event) {
 		}
 	}
 	
-	if (g_event_callback != NULL && ret_type != LINPHONE_EVENT_UNKNOW) {
+	if (base_ctx->event_callback_ptr != NULL && ret_type != LINPHONE_EVENT_UNKNOW) {
 		ret_event = linphone_event_init(ret_type, ret_data);
-		(*g_event_callback)(ret_event);
+		(*(base_ctx->event_callback_ptr))(ret_event);
 		linphone_event_uninit(ret_event);
 	}
 }
 
 
-//³¬Ê±´¦Àí???
 void *linphone_event_thread(void *arg) {
 	linphone_event *event = NULL;
 	fms_list *list = NULL;
-
+	LinphoneCore *lc = base_ctx->lc;
+	
 	FMS_DEBUG("linphone_event_thread start\n");
 	
-	while (g_linphone_runing_flag) {
+	while (base_ctx->runing_flag) {
 		//ÂÖÑ¯´¦ÀíÊÂ¼ş¶ÓÁĞ£¬²ÉÓÃÌõ¼ş±äÁ¿£¬»òÕß¸ü¼Ó¸ß¼¶µÄÓÃ·¨å
-		pthread_mutex_lock(&g_linphone_event_queue_lock);
-		list = fms_dequeue(g_linphone_event_queue);
-		pthread_mutex_unlock(&g_linphone_event_queue_lock);
+		pthread_mutex_lock(&base_ctx->event_queue_lock);
+		list = fms_dequeue(base_ctx->event_queue);
+		pthread_mutex_unlock(&base_ctx->event_queue_lock);
 		if (list != NULL) {
-			printf("linphone_event_thread 2\n");
 			event = fms_list_data(list, linphone_event, list);
 			linphone_event_handle(event);
 			linphone_event_uninit(event);
 		}
-		linphone_core_iterate(g_linphone_core);
+		linphone_core_iterate(lc);
 		usleep(200000);
 	}
 
+	linphone_core_terminate_all_calls(lc);
+	linphone_core_destroy(lc);
+	free(base_ctx);//need handle queue
+	base_ctx = NULL;
+	
 	return (void *)0;
 }
 
 
 
-fms_s32 linphone_base_init(const fms_s8 *configfile_name, linphone_event_callback event_callback, 
-					  fms_bool vcap_enable, fms_bool vdisplay_enable, fms_uintptr window_id) {
+fms_s32 linphone_base_init(const fms_s8 *configfile_name, 
+								 linphone_event_callback event_callback) {
 	LinphoneCoreVTable linphone_vtable = {0};
 	MSVideoSize vsize = {320, 240};
 	
-	if (g_linphone_runing_flag) {
-		FMS_ERROR("linphone has aleardy init\n");
+	if (base_ctx != NULL) {
+		FMS_ERROR("linphone base has aleardy init\n");
 		return FMS_FAILED;
 	}
-
-	g_event_callback = event_callback;
+	
+	base_ctx = (linphone_base_context *)malloc(sizeof(linphone_base_context));
+	FMS_ASSERT(base_ctx != NULL);
+	
+	
+	base_ctx->event_callback_ptr = event_callback;
 	linphone_vtable.registration_state_changed = linphone_registration_state_changed;
 	linphone_vtable.call_state_changed = linphone_call_state_changed;
 	linphone_vtable.notify_presence_received = linphone_notify_presence_received;
@@ -429,11 +443,11 @@ fms_s32 linphone_base_init(const fms_s8 *configfile_name, linphone_event_callbac
 	linphone_vtable.display_message = linphone_display_something;
 	linphone_vtable.display_warning = linphone_display_warning;
 	linphone_vtable.display_url=linphone_display_url;
-	linphone_vtable.text_received=linphone_text_received;
-	linphone_vtable.dtmf_received=linphone_dtmf_received;
-	linphone_vtable.refer_received=linphone_display_refer;
-	linphone_vtable.transfer_state_changed=linphone_transfer_state_changed;
-	linphone_vtable.call_encryption_changed=linphone_call_encryption_changed;
+	linphone_vtable.text_received = linphone_text_received;
+	linphone_vtable.dtmf_received = linphone_dtmf_received;
+	linphone_vtable.refer_received = linphone_display_refer;
+	linphone_vtable.transfer_state_changed = linphone_transfer_state_changed;
+	linphone_vtable.call_encryption_changed = linphone_call_encryption_changed;
 
 //log swicth?	
 #if 0
@@ -463,56 +477,49 @@ fms_s32 linphone_base_init(const fms_s8 *configfile_name, linphone_event_callbac
 	//auth_stack.nitems=0; ???
 
 
-	g_linphone_core = linphone_core_new(&linphone_vtable, configfile_name, NULL, NULL);
+	base_ctx->lc = linphone_core_new(&linphone_vtable, configfile_name, NULL, NULL);
 
-	linphone_core_set_user_agent(g_linphone_core, "Linphone_base",  LINPHONE_VERSION);
+	linphone_core_set_user_agent(base_ctx->lc, "Linphone_base",  LINPHONE_VERSION);
 	//linphone_core_set_zrtp_secrets_file(linphonec, zrtpsecrets);
 	//linphone_core_set_user_certificates_path(linphonec,usr_certificates_path);
-	FMS_WARN("linphone_base_init: cap=%d display=%d\n", vcap_enable, vdisplay_enable);
-	linphone_core_enable_video_capture(g_linphone_core, vcap_enable);
-	linphone_core_enable_video_display(g_linphone_core, vdisplay_enable);
-	//set window ID ?
-	if (vdisplay_enable && window_id != 0) {
-		printf("Setting window_id: 0x%x\n", window_id);
-		linphone_core_set_native_video_window_id(g_linphone_core, window_id);
-	}
 	//linphone_core_enable_video_preview(linphonec,preview_enabled);
-	linphone_core_set_preview_video_size(g_linphone_core, vsize);
+	linphone_core_set_preview_video_size(base_ctx->lc, vsize);
 
 	
-	g_linphone_event_queue = fms_queue_new(); 
-	pthread_mutex_init(&g_linphone_event_queue_lock, NULL);
-	g_linphone_runing_flag = FMS_TRUE;
-	pthread_create(&g_linphone_event_thread_t, NULL, linphone_event_thread, NULL);
+	base_ctx->event_queue = fms_queue_new(); 
+	pthread_mutex_init(&base_ctx->event_queue_lock, NULL);
+	base_ctx->runing_flag = FMS_TRUE;
+	pthread_create(&base_ctx->event_thread_t, NULL, linphone_event_thread, NULL);
 
 	return FMS_SUCCESS;
 }
 
 
+fms_void linphone_base_set_native_window_id(fms_uintptr window_id) {
+	fms_bool display_enable = linphone_core_video_display_enabled(base_ctx->lc);
+
+	if (display_enable && window_id != 0) {
+        linphone_core_set_native_video_window_id(base_ctx->lc, window_id);
+    }
+}
+
 fms_void linphone_base_add_event(linphone_event *event) {
 	FMS_EQUAL_RETURN(event, NULL);
 
-	pthread_mutex_lock(&g_linphone_event_queue_lock);
-	fms_enqueue(g_linphone_event_queue, &event->list);
-	pthread_mutex_unlock(&g_linphone_event_queue_lock);
+	pthread_mutex_lock(&base_ctx->event_queue_lock);
+	fms_enqueue(base_ctx->event_queue, &event->list);
+	pthread_mutex_unlock(&base_ctx->event_queue_lock);
 }
 
 
 
 fms_void linphone_base_uninit(fms_s32 exit_status) {
 
-	if (!g_linphone_runing_flag) {
+	if (NULL == base_ctx) {
 		FMS_ERROR("linphone has not init\n");
 		return;
 	}
-
-	/* Terminate any pending call */
-	linphone_core_terminate_all_calls(g_linphone_core);
-
-	linphone_core_destroy(g_linphone_core);
-	g_linphone_core = NULL;
-
-	g_linphone_runing_flag = FALSE;
+	base_ctx->runing_flag = FALSE;
 	//µÈ´ıÏß³Ì½áÊø
 }
 

@@ -36,7 +36,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "mediastreamer2/msvolume.h"
 #include "mediastreamer2/msequalizer.h"
 #include "mediastreamer2/dtmfgen.h"
-#include "fms_log.h"
+
 #ifdef INET6
 #ifndef WIN32
 #include <netdb.h>
@@ -1230,7 +1230,7 @@ static void video_config_read(LinphoneCore *lc){
 
 #ifdef VIDEO_ENABLED
 #if defined(ANDROID) || defined(__ios)
-	//automatic_video=0;
+	automatic_video=0;
 #endif
 	capture=lp_config_get_int(lc->config,"video","capture",1);
 	display=lp_config_get_int(lc->config,"video","display",1);
@@ -3318,7 +3318,7 @@ void linphone_core_notify_incoming_call(LinphoneCore *lc, LinphoneCall *call){
 	char *barmesg;
 	char *tmp;
 	LinphoneAddress *from_parsed;
-	bool_t propose_early_media=TRUE;//lp_config_get_int(lc->config,"sip","incoming_calls_early_media",FALSE);
+	bool_t propose_early_media=lp_config_get_int(lc->config,"sip","incoming_calls_early_media",FALSE);
 
 	from_parsed=linphone_address_new(sal_op_get_from(call->op));
 	linphone_address_clean(from_parsed);
@@ -7052,7 +7052,7 @@ void linphone_core_init_default_params(LinphoneCore*lc, LinphoneCallParams *para
 	params->avpf_enabled=FALSE;
 	params->audio_dir=LinphoneMediaDirectionSendRecv;
 	params->video_dir=LinphoneMediaDirectionSendRecv;
-	params->real_early_media=TRUE;//lp_config_get_int(lc->config,"misc","real_early_media",FALSE);
+	params->real_early_media=lp_config_get_int(lc->config,"misc","real_early_media",FALSE);
 }
 
 void linphone_core_set_device_identifier(LinphoneCore *lc,const char* device_id) {

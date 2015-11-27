@@ -10,241 +10,227 @@
 #include <fcntl.h>
 #include <pthread.h>
 
-//#define ANDROID_MEDIACODEC
-jclass g_h264_codec_class;
-static jobject g_h264_encode_obj;
-static jmethodID g_h264_codec_init_id;
-static jmethodID g_h264_codec_encode_id;
-static jmethodID g_h264_codec_close_id;
+#define VIDEO_ENC_MAX_WIDTH      1080
+#define VIDEO_ENC_MAX_HEIGHT     720
+#define CODEC_ENCODE             0
+#define START_CODE_LEN           4
+#define SPS_LEN                  9
+#define PPS_LEN                  4
+
+#define GET_TYPE(m) ((m) & 0X1F)
+
+enum {
+	IDR_TYPE = 5,
+	SPS_TYPE = 7,
+	PPS_TYPE = 8
+};
 
 typedef struct _EncData {
 	MSVideoSize vsize;
 	int bitrate;
 	float fps;
-	int mode;
 	uint64_t framenum;
 	Rfc3984Context packer;
 	int keyframe_int;
 	bool_t generate_keyframe;
+	jbyteArray input_data;
+	jbyteArray output_data;
+	jobject h264_encode_obj;
+	jmethodID h264_construct_id;
+	jmethodID h264_encode_id;
+	jmethodID h264_close_id;
+	uint8_t *bitstream;
+	int bitstream_size;
 } EncData;
 
-#include "fms_log.h"
+jclass h264_codec_class;
+
 static void enc_init(MSFilter *f) {
 	EncData *d = ms_new(EncData, 1);
-	JNIEnv *jni_env;
+	JNIEnv *jni_env = NULL;
 	JavaVM *jvm = ms_get_jvm();
+
+	(*jvm)->AttachCurrentThread(jvm, &jni_env, NULL);
 	
+	d->h264_construct_id = (*jni_env)->GetMethodID(jni_env, h264_codec_class, "<init>", "(IIIII)V");
+	d->h264_encode_id = (*jni_env)->GetMethodID(jni_env, h264_codec_class, "encode", "([B[B)I");
+	d->h264_close_id = (*jni_env)->GetMethodID(jni_env, h264_codec_class, "close", "()V");
+	d->input_data = (*jni_env)->NewByteArray(jni_env, VIDEO_ENC_MAX_WIDTH*VIDEO_ENC_MAX_HEIGHT*3/2); 
+	d->input_data = (*jni_env)->NewGlobalRef(jni_env, d->input_data);
+	d->output_data = (*jni_env)->NewByteArray(jni_env, VIDEO_ENC_MAX_WIDTH*VIDEO_ENC_MAX_HEIGHT*3/2); 
+	d->output_data = (*jni_env)->NewGlobalRef(jni_env, d->output_data);
+	
+	(*jvm)->DetachCurrentThread(jvm);
+
 	d->bitrate = 384000;//2000000;//384000;
 	d->fps = 25;//30;
 	d->keyframe_int = 10; /*10 seconds */
-	d->mode = 0;
 	d->framenum = 0;
-	d->generate_keyframe = FALSE;
 	f->data = d;
-
-	(*jvm)->AttachCurrentThread(jvm, &jni_env, NULL);
-	//h264_codec_class = (*jni_env)->FindClass(jni_env, "com/example/linphone/H264Codec");
-	//g_h264_codec_class = (jclass)(*jni_env)->NewGlobalRef(jni_env, h264_codec_class);
-	g_h264_codec_init_id = (*jni_env)->GetMethodID(jni_env, g_h264_codec_class, "<init>", "(IIIII)V");
-	
-	g_h264_codec_encode_id = (*jni_env)->GetMethodID(jni_env, g_h264_codec_class, "encode", "([B[B)I");
-	g_h264_codec_close_id = (*jni_env)->GetMethodID(jni_env, g_h264_codec_class, "close", "()V");
-	(*jvm)->DetachCurrentThread(jvm);
+	d->bitstream_size = VIDEO_ENC_MAX_WIDTH*VIDEO_ENC_MAX_HEIGHT*3/2;
+	d->bitstream = (uint8_t*)ms_malloc0(d->bitstream_size);
 }
 
 static void enc_uninit(MSFilter *f) {
 	EncData *d = (EncData*)f->data;
+	JNIEnv *jni_env = NULL;
+	JavaVM *jvm = ms_get_jvm();
+	
+	(*jvm)->AttachCurrentThread(jvm, &jni_env, NULL);
+	
+	if (d->input_data != 0) {
+		(*jni_env)->DeleteGlobalRef(jni_env, d->input_data);	
+	}
+	if (d->output_data != 0) {
+		(*jni_env)->DeleteGlobalRef(jni_env, d->output_data);
+	}
+	
+	(*jvm)->DetachCurrentThread(jvm);
+	
+	ms_free(d->bitstream);
 	ms_free(d);		
 }
 
 static void enc_preprocess(MSFilter *f) {
 	EncData *d = (EncData*)f->data;
-	jobject h264_encode_obj;
-	JNIEnv *jni_env;
+	JNIEnv *jni_env = NULL;
 	JavaVM *jvm = ms_get_jvm();
+	
+	(*jvm)->AttachCurrentThread(jvm, &jni_env, NULL);
+	
+	d->h264_encode_obj = (*jni_env)->NewObject(jni_env, h264_codec_class, d->h264_construct_id, 
+								CODEC_ENCODE, d->vsize.width, d->vsize.height, d->keyframe_int, d->bitrate);  
+	d->h264_encode_obj = (*jni_env)->NewGlobalRef(jni_env, d->h264_encode_obj);
+	
+	(*jvm)->DetachCurrentThread(jvm);
 	
 	rfc3984_init(&d->packer);
 	rfc3984_set_mode(&d->packer, 1);
 	rfc3984_enable_stap_a(&d->packer, FALSE);
-	d->framenum=0;
-	
-	(*jvm)->AttachCurrentThread(jvm, &jni_env, NULL);
-	h264_encode_obj = (*jni_env)->NewObject(jni_env, g_h264_codec_class, g_h264_codec_init_id, 0, 
-										d->vsize.width, d->vsize.height, d->keyframe_int, d->bitrate);  
-	g_h264_encode_obj = (*jni_env)->NewGlobalRef(jni_env, h264_encode_obj);
-	(*jni_env)->DeleteLocalRef(jni_env, h264_encode_obj);
-	(*jvm)->DetachCurrentThread(jvm);
-}
-
-
-void enc_process(MSFilter *f){
-
-	EncData *d=(EncData*)f->data;
-	uint32_t ts=f->ticker->time*90LL;
-	mblk_t *im;
-	//MSPicture pic;
-	MSQueue nalus;
-	
-	//static uint64_t last_time = 0;
-	//static unsigned char out_buf[640*480*10];
-	static unsigned char out_buf[1080*720*3];
-	static char sps[9];
-	static char pps[4];
-	int h264_encode_size = 0;
-	
-	JNIEnv *jni_env;
-	JavaVM *jvm= ms_get_jvm();	
-	jbyteArray input_data;
-	jbyteArray output_data;
-	jint out_sizes;
-	char *pos = NULL;
-	mblk_t *sps_t = NULL;
-	mblk_t *pps_t = NULL;
-	mblk_t *om;	
-	(*jvm)->AttachCurrentThread(jvm, &jni_env, NULL);	
-
-	ms_queue_init(&nalus);
-	while((im=ms_queue_get(f->inputs[0]))!=NULL){
-
-		h264_encode_size = im->b_wptr - im->b_rptr;	
-		//last_time = f->ticker->time; 	
-
-		input_data = (*jni_env)->NewByteArray(jni_env, h264_encode_size); 
-		(*jni_env)->SetByteArrayRegion(jni_env, input_data, 0, h264_encode_size, (jbyte*)im->b_rptr);
-		output_data = (*jni_env)->NewByteArray(jni_env, h264_encode_size); 
-	
-		out_sizes = (*jni_env)->CallIntMethod(jni_env, g_h264_encode_obj, g_h264_codec_encode_id, input_data, output_data);
-		(*jni_env)->GetByteArrayRegion(jni_env, output_data, 0, out_sizes, (jbyte*)out_buf);
-	
-		(*jni_env)->DeleteLocalRef(jni_env, input_data);
-		(*jni_env)->DeleteLocalRef(jni_env, output_data);
-		
-		//FMS_WARN("++++++++++++++++++++====================enc_process size=%d\n", out_sizes);
-
-		pos = (char *)out_buf;
-		while (out_sizes > 4) {
-			if (pos[4] == 0x67 && out_sizes > 13) {
-				memcpy(sps, pos + 4, 9);
-				sps_t =allocb(9, 0); 
-				memcpy(sps_t->b_rptr, sps, 9);
-				sps_t->b_wptr+= 9;
-				ms_queue_put(&nalus, sps_t);
-				pos += 13;
-				out_sizes -= 13;
-			} else if (pos[4] == 0x68 && out_sizes > 8) {
-				memcpy(pps, pos + 4, 4);
-				pps_t =allocb(4, 0); 
-				memcpy(sps_t->b_rptr, pps, 4);
-				pps_t->b_wptr+= 4;
-				ms_queue_put(&nalus, pps_t);
-				pos += 8;
-				out_sizes -= 8;
-			} else {
-				om=allocb(out_sizes-4 ,0); // delete start_code
-				memcpy(om->b_wptr, pos + 4, out_sizes - 4);
-				om->b_wptr+= out_sizes - 4;
-				ms_queue_put(&nalus,om);
-				out_sizes = 0;
-			}
-			
-				
-		}
-#if	0	
-		if (out_sizes > 0) { //encode ok 4+9+4+4
-			pos = (char *)out_buf;
-			pos += 10;
-			
-			if(out_buf[4] == 0x67 && out_buf[17] == 0x68) {  //SPS PPS
-				memcpy(sps, out_buf+4, 9);
-				
-				sps_t =allocb(9, 0); 
-				memcpy(sps_t->b_rptr, sps, 9);
-				sps_t->b_wptr+= 9;
-				ms_queue_put(&nalus, sps_t);
-				pos = (char *)sps_t->b_rptr;
-				
-				memcpy(pps, out_buf+17, 4);
-				
-				pps_t =allocb(4, 0); 
-				memcpy(pps_t->b_rptr, pps, 4);
-				pps_t->b_wptr+= 4;	
-				ms_queue_put(&nalus, pps_t);
-				pos = (char *)pps_t->b_rptr;
-				
-				om=allocb(out_sizes-4-21 ,0); // delete start_code
-				memcpy(om->b_wptr, out_buf+4+21, out_sizes-4-21);
-				om->b_wptr+= out_sizes-4-21;
-				ms_queue_put(&nalus,om);
-			} else {
-				if (out_buf[4] == 0x65) {
-					sps_t =allocb(9, 0); 
-					memcpy(sps_t->b_rptr, sps, 9);
-					sps_t->b_wptr+= 9;
-					ms_queue_put(&nalus, sps_t);
-				
-					pps_t =allocb(4, 0); 
-					memcpy(pps_t->b_rptr, pps, 4);
-					pps_t->b_wptr+= 4;	
-					ms_queue_put(&nalus, pps_t);					
-				}
-				
-				om=allocb(out_sizes -4 ,0); // delete start_code
-				memcpy(om->b_wptr, out_buf+4, out_sizes-4);
-				om->b_wptr+= out_sizes-4;
-				ms_queue_put(&nalus,om);
-			}
-
-		}
-#endif
-		rfc3984_pack(&d->packer,&nalus,f->outputs[0],ts);
-		d->framenum++;
-		freemsg(im);
-		
-	}
-	
-	(*jvm)->DetachCurrentThread(jvm);
-
+	d->framenum = 0;
 }
 
 static void enc_postprocess(MSFilter *f){
 	EncData *d = (EncData*)f->data;
+	JNIEnv *jni_env = NULL;
+	JavaVM *jvm = ms_get_jvm();
+	
+	(*jvm)->AttachCurrentThread(jvm, &jni_env, NULL);
+	
+	(*jni_env)->CallIntMethod(jni_env, d->h264_encode_obj, d->h264_close_id);
+	(*jni_env)->DeleteGlobalRef(jni_env, d->h264_encode_obj);
+	d->h264_encode_obj = 0;
+
+	(*jvm)->DetachCurrentThread(jvm);
+
 	rfc3984_uninit(&d->packer);
 }
 
+
+void enc_process(MSFilter *f){
+	EncData *d = (EncData*)f->data;
+	uint32_t ts = f->ticker->time*90LL;
+	mblk_t *im =NULL;
+	MSQueue nalus;
+	int in_size = 0;
+	jint out_size = 0;
+	JNIEnv *jni_env = NULL;
+	JavaVM *jvm = ms_get_jvm();	
+	uint8_t *pos = NULL;	
+	
+	(*jvm)->AttachCurrentThread(jvm, &jni_env, NULL);	
+
+	ms_queue_init(&nalus);
+	while((im = ms_queue_get(f->inputs[0]))!=NULL){
+        in_size = im->b_wptr - im->b_rptr;	
+		(*jni_env)->SetByteArrayRegion(jni_env, d->input_data, 0, in_size, (jbyte*)im->b_rptr);
+		out_size = (*jni_env)->CallIntMethod(jni_env, d->h264_encode_obj, d->h264_encode_id, 
+											 d->input_data, d->output_data);
+		(*jni_env)->GetByteArrayRegion(jni_env, d->output_data, 0, out_size, (jbyte*)d->bitstream);
+
+		pos = (uint8_t *)d->bitstream;
+		while (out_size > START_CODE_LEN) {
+			if (GET_TYPE(pos[4]) == SPS_TYPE && out_size > SPS_LEN + START_CODE_LEN) {
+				mblk_t *sps_t = allocb(SPS_LEN, 0);
+				
+				memcpy(sps_t->b_rptr, pos + START_CODE_LEN, SPS_LEN);
+				sps_t->b_wptr += SPS_LEN;
+				ms_queue_put(&nalus, sps_t);
+				pos += SPS_LEN + START_CODE_LEN;
+				out_size -= SPS_LEN + START_CODE_LEN;
+			} else if (GET_TYPE(pos[4]) == PPS_TYPE && out_size > PPS_LEN + START_CODE_LEN) {
+				mblk_t *pps_t = allocb(PPS_LEN, 0); 
+				
+				memcpy(pps_t->b_rptr, pos + START_CODE_LEN, PPS_LEN);
+				pps_t->b_wptr += PPS_LEN;
+				ms_queue_put(&nalus, pps_t);
+				pos += PPS_LEN + START_CODE_LEN;
+				out_size -= PPS_LEN + START_CODE_LEN;
+			} else {
+				mblk_t *om = allocb(out_size - START_CODE_LEN, 0); // delete start_code
+				
+				memcpy(om->b_wptr, pos + START_CODE_LEN, out_size - START_CODE_LEN);
+				om->b_wptr += out_size - START_CODE_LEN;
+				ms_queue_put(&nalus,om);
+				out_size = 0;
+			}
+					
+		}
+
+		rfc3984_pack(&d->packer, &nalus, f->outputs[0], ts);
+		d->framenum++;
+		freemsg(im);	
+	}
+	
+	(*jvm)->DetachCurrentThread(jvm);
+
+}
+
+
 static int enc_support_pixfmt(MSFilter *f, void *arg) { 
 	MSVideoEncoderPixFmt *encoder_supports_source_format = (MSVideoEncoderPixFmt *)arg;
+	
 	if (encoder_supports_source_format->pixfmt  != MS_YUV420P) {
 		return -1;
 	}
 	encoder_supports_source_format->supported = TRUE;
+	
 	return 0;
 }
 
 static int enc_set_video_size(MSFilter *f, void *arg) {
 	EncData *d = (EncData*)f->data;
 	MSVideoSize *vs = (MSVideoSize *)arg;
+	
 	d->vsize = *vs;
+	
 	return 0;
 }
 
 static int enc_get_video_size(MSFilter *f, void *arg) {
 	EncData *d = (EncData*)f->data;
 	MSVideoSize *vs = (MSVideoSize *)arg;
+	
 	*vs = d->vsize;
+	
 	return 0;
 }
 
 static int enc_set_fps(MSFilter *f, void *arg) {
 	EncData *d = (EncData*)f->data;
 	float *fps = (float *)arg;
+	
 	d->fps= *fps;
+	
 	return 0;
 }
 
 static int enc_get_fps(MSFilter *f, void *arg) {
 	EncData *d = (EncData*)f->data;
 	float *fps = (float *)arg;
+	
 	*fps = d->fps;
+	
 	return 0;
 }
 

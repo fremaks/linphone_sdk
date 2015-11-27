@@ -5,44 +5,68 @@
 #include "fms_log.h"
 
 
-#define NELEM(x)          (sizeof(x)/sizeof((x)[0]))
-//#define APP_LAYER_CLASS   "com/lorent/linphone/LinphoneProxy"
-#define APP_LAYER_CLASS   "com/example/linphone/MainActivity"
-jmethodID g_linphone_callback_methodid;
-jobject  g_linphone_proxy;
-extern jclass g_h264_codec_class;
+#define NELEM(x)                   (sizeof(x)/sizeof((x)[0]))
+#define LINPHONE_INTERFACE_CLASS   "com/example/linphone/LinphoneInterface"
+#define FMS_CAMERA_CLASS       	   "com/example/linphone/FmsCamera"
+#define H264_CODEC_CLASS           "com/example/linphone/H264Codec"
+#define VIDEO_DISPLAY_CLASS    	   "com/example/linphone/VideoDisplay"
+
+typedef struct _linphone_jni_context {
+	jobject interface_obj;
+	jmethodID callback_method_id;
+} linphone_jni_context;
+
+extern jclass h264_codec_class;
+extern jclass video_display_class;
+linphone_jni_context *jni_ctx = NULL;
 
 static fms_void 
 linphone_jni_event_callback(linphone_event *event) {
-	JNIEnv *jni_env;
-    JavaVM *jvms= ms_get_jvm();
-	jstring dataStr;
+	JNIEnv *env = 0;
+    JavaVM *jvm = ms_get_jvm();
+	jstring data = 0;
+
+	FMS_EQUAL_RETURN(event, NULL);
+	FMS_EQUAL_RETURN(jvm, NULL);
+	//FMS_EQUAL_RETURN(jni_ctx, NULL);
 	
 	FMS_WARN("linphone_jni_event_callback:type=%d data=%s\n", event->type, event->data);	
-	if (NULL == jvms) {
-		return;
-	}
-	
-	(*jvms)->AttachCurrentThread(jvms, &jni_env, NULL);
 
-	dataStr = (*jni_env)->NewStringUTF(jni_env, event->data);
-	(*jni_env)->CallStaticVoidMethod(jni_env, g_linphone_proxy, g_linphone_callback_methodid,
-	 						   event->type, dataStr);
-	(*jni_env)->DeleteLocalRef(jni_env, dataStr);
-	(*jvms)->DetachCurrentThread(jvms);
+	(*jvm)->AttachCurrentThread(jvm, &env, NULL);
+
+	data = (*env)->NewStringUTF(env, event->data);
+	(*env)->CallVoidMethod(env, jni_ctx->interface_obj, jni_ctx->callback_method_id,
+	 						   	 event->type, data);
+	
+	(*env)->DeleteLocalRef(env, data);
+	(*jvm)->DetachCurrentThread(jvm);
 
 }
 
 JNIEXPORT jint JNICALL 
-linphone_jni_init(JNIEnv* env, jobject thiz, jstring jconfigfile_name, 
-					  jboolean jvcap_enable, jboolean jvdisplay_enable, jobject obj) {
+linphone_jni_init(JNIEnv* env, jobject thiz, jstring jconfigfile_name) {
 	jint ret = FMS_FAILED;
-	const fms_s8* configfile_name = (*env)->GetStringUTFChars(env, jconfigfile_name, NULL);
-	if (obj != NULL) {
-		obj = (*env)->NewGlobalRef(env, obj);
+	const fms_s8 *configfile_name = NULL;
+	jclass interface_class = 0;
+	
+	if (jni_ctx != NULL) {
+		FMS_WARN("linphone jni has aleardy init\n");
+		return ret;
 	}
-	ret = linphone_base_init(configfile_name, linphone_jni_event_callback, 
-							jvcap_enable, jvdisplay_enable, (fms_uintptr)obj);
+
+	jni_ctx = (linphone_jni_context *)malloc(sizeof(linphone_jni_context));
+	FMS_ASSERT(jni_ctx != NULL);
+	jni_ctx->interface_obj = 0;
+	jni_ctx->callback_method_id = 0;
+
+	interface_class = (*env)->GetObjectClass(env, thiz);
+	jni_ctx->interface_obj = (*env)->NewGlobalRef(env, thiz);
+ 	jni_ctx->callback_method_id = (*env)->GetMethodID(env, interface_class,
+                                            "linphoneCallback", "(ILjava/lang/String;)V");
+	(*env)->DeleteLocalRef(env, interface_class);
+	
+	configfile_name = (*env)->GetStringUTFChars(env, jconfigfile_name, NULL);
+	ret = linphone_base_init(configfile_name, linphone_jni_event_callback);
 	(*env)->ReleaseStringUTFChars(env, jconfigfile_name, configfile_name);
 
 	return ret;
@@ -50,50 +74,69 @@ linphone_jni_init(JNIEnv* env, jobject thiz, jstring jconfigfile_name,
 
 JNIEXPORT fms_void JNICALL 
 linphone_jni_uninit(JNIEnv* env, jobject thiz, jint jexit_status) {
+	FMS_EQUAL_RETURN(jni_ctx, NULL);
+	
+	free(jni_ctx);
+	jni_ctx = NULL;
+
 	linphone_base_uninit(jexit_status);
 }
 
 JNIEXPORT fms_void JNICALL 
-linphone_jni_add_event(JNIEnv* env, jobject thiz, jint jevent_type, 
-								jstring jevent_data) {//jevent_dataÈç¹ûÎª¿ÕµÄ»°å
-	const fms_s8* event_data = (*env)->GetStringUTFChars(env, jevent_data, NULL);
+linphone_jni_set_native_window_id(JNIEnv* env, jobject thiz, jobject window_id) {
+	FMS_EQUAL_RETURN(jni_ctx, NULL);
+	
+	if (window_id != 0) {
+		window_id = (*env)->NewGlobalRef(env, window_id);
+	}
+	linphone_base_set_native_window_id((fms_uintptr)window_id);
+}
 
+JNIEXPORT fms_void JNICALL 
+linphone_jni_add_event(JNIEnv* env, jobject thiz, jint jevent_type, 
+								jstring jevent_data) {
+	const fms_s8* event_data = NULL; 
+	linphone_event *event = NULL;
+	
+	FMS_EQUAL_RETURN(jni_ctx, NULL);
+	
+	event_data = (*env)->GetStringUTFChars(env, jevent_data, NULL);
 	FMS_WARN("linphone_jni_add_event->[%d]event_data=%s\n", jevent_type, event_data);
-	linphone_event *event = linphone_event_init(jevent_type, event_data);
+	event = linphone_event_init(jevent_type, event_data);
 	linphone_base_add_event(event);
 	
 	(*env)->ReleaseStringUTFChars(env, jevent_data, event_data);
 }
 
-static JNINativeMethod methods[] = { 
-	{"linphone_init", "(Ljava/lang/String;ZZLcom/example/linphone/AndroidVideoWindowImpl;)I", (void*)linphone_jni_init},
-	{"linphone_uninit", "(I)V", (void*)linphone_jni_uninit},
-	{"linphone_add_event", "(ILjava/lang/String;)V", (void*)linphone_jni_add_event},
+
+static JNINativeMethod linphone_interface_methods[] = { 
+	{"linphone_init", "(Ljava/lang/String;)I", (fms_void *)linphone_jni_init},
+	{"linphone_uninit", "(I)V", (fms_void *)linphone_jni_uninit},
+	{"linphone_set_native_window_id", "(L"VIDEO_DISPLAY_CLASS";)V",
+	                            (fms_void *)linphone_jni_set_native_window_id},
+	{"linphone_add_event", "(ILjava/lang/String;)V", (fms_void *)linphone_jni_add_event}
 };
 
+
 static fms_s32
-registerNativeMethods(JNIEnv *env, const fms_s8 *className,
-					 const JNINativeMethod* methods, const fms_s32 numMethods) {
+register_native_methods(JNIEnv *env, const fms_s8 *class_name,
+					 const JNINativeMethod* methods, const fms_s32 methods_num) {
 
     int ret = FMS_FAILED;  
-    jclass clazz;
-	jobject linphone_proxy;
+    jclass dst_class = 0;
 	
-    clazz = (*env)->FindClass(env, className);  
-    if (NULL == clazz) {  
- 	    FMS_ERROR("Native registration unable to find class '%s", className);  
+    dst_class = (*env)->FindClass(env, class_name);  
+    if (NULL == dst_class) {  
+ 	    FMS_ERROR("register_native_methods unable to find class %s\n", class_name);  
         return ret;  
     }
 	
-    if ((*env)->RegisterNatives(env, clazz, methods, numMethods) < 0) {  
-        FMS_ERROR("RegisterNatives failed for '%s'", className);  
+    if ((*env)->RegisterNatives(env, dst_class, methods, methods_num) < 0) {  
+        FMS_ERROR("register_native_methods failed for %s \n", class_name);  
         return ret;  
     }  
 	
-	linphone_proxy = (*env)->GetObjectClass(env, clazz);
-	g_linphone_proxy = (*env)->NewGlobalRef(env, linphone_proxy);
-    (*env)->DeleteLocalRef(env, linphone_proxy);
-	g_linphone_callback_methodid = (*env)->GetStaticMethodID(env, clazz, "linphoneCallback", "(ILjava/lang/String;)V");
+	(*env)->DeleteLocalRef(env, dst_class);
 	
 	ret = FMS_SUCCESS;
 
@@ -101,25 +144,43 @@ registerNativeMethods(JNIEnv *env, const fms_s8 *className,
 }
 
 
+static jclass 
+get_global_class(JNIEnv *env, fms_s8 *class_name) {
+	jclass local_class = 0;
+	jclass global_class = 0;
+	
+	//FMS_EQUAL_RETURN(env, NULL);
+	FMS_EQUAL_RETURN(class_name, NULL);
+	
+	local_class = (*env)->FindClass(env, class_name);
+	global_class = (jclass)(*env)->NewGlobalRef(env, local_class);
+	(*env)->DeleteLocalRef(env, local_class);
+	
+	return global_class;
+}
+
+
 JNIEXPORT jint JNICALL  
 JNI_OnLoad(JavaVM *jvm, void *reserved) {
 	JNIEnv* env = NULL;
 	jint result = -1;
-	
+	jclass fms_camera_class_local = 0;
+
 	if ((*jvm)->GetEnv(jvm, (void**)&env, JNI_VERSION_1_4) != JNI_OK) {
 		FMS_ERROR("GetEnv failed\n");
         goto fail;
     }
-    //assert(env != NULL);
 	FMS_ASSERT(env != NULL);
-    if (registerNativeMethods(env, APP_LAYER_CLASS, methods, NELEM(methods)) 
-								!= FMS_SUCCESS) {
-		FMS_ERROR("registerNativeMethods failed");
+
+	if (register_native_methods(env, LINPHONE_INTERFACE_CLASS, linphone_interface_methods, 
+	                          NELEM(linphone_interface_methods)) != FMS_SUCCESS) {
+		FMS_ERROR("registerNativeMethods(%s) failed\n", LINPHONE_INTERFACE_CLASS);
 		goto fail;
 	}
-	jclass h264_codec_class = (*env)->FindClass(env, "com/example/linphone/H264Codec");
-	g_h264_codec_class = (jclass)(*env)->NewGlobalRef(env, h264_codec_class);
-	FMS_WARN("JNI_OnLoad->g_h264_codec_class=%d\n", g_h264_codec_class);
+	
+	h264_codec_class = get_global_class(env, H264_CODEC_CLASS);
+	video_display_class = get_global_class(env, VIDEO_DISPLAY_CLASS);
+	
 	linphone_base_set_jvm(jvm);
     result = JNI_VERSION_1_4;
 fail:		
