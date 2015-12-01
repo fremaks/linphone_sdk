@@ -524,8 +524,23 @@ fms_void linphone_base_uninit(fms_s32 exit_status) {
 }
 
 #if ANDROID
+
 fms_void linphone_base_set_jvm(fms_void *jvm) {
 	ms_set_jvm((JavaVM *)jvm);
 }
+
+fms_void linphone_base_openglesdisplay_init(fms_s32 ptr, fms_s32 width, fms_s32 height) {
+	OpenGLESDisplay_init(ptr, width, height);
+}
+
+fms_void linphone_base_openglesdisplay_render(fms_s32 ptr) {
+	OpenGLESDisplay_render(ptr);
+}
+
+extern void fmscamera_put_image(void *env, void *yuvframe, int length); 
+fms_void linphone_base_fmscamera_put_image(void *env, void *yuvframe, int length) {
+	fmscamera_put_image(env, yuvframe, length);	
+}
+
 #endif
 

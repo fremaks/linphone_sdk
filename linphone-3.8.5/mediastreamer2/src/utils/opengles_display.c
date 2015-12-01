@@ -587,15 +587,17 @@ void ogl_display_zoom(struct opengles_display* gldisp, float* params) {
 }
 
 #ifdef ANDROID
-JNIEXPORT void JNICALL Java_com_example_linphone_OpenGLESDisplay_init(JNIEnv * env, jobject obj, jint ptr, jint width, jint height) {
+
+void OpenGLESDisplay_init(int ptr, int width, int height) {
 	struct opengles_display* d = (struct opengles_display*) ptr;
 	ogl_display_init(d, width, height);
 }
 
-JNIEXPORT void JNICALL Java_com_example_linphone_OpenGLESDisplay_render(JNIEnv * env, jobject obj, jint ptr) {
+void OpenGLESDisplay_render(int ptr) {
 	struct opengles_display* d = (struct opengles_display*) ptr;
 	ogl_display_render(d, 0);
 }
+
 #endif
 
 #ifdef __cplusplus

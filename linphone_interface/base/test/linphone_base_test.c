@@ -17,7 +17,7 @@ fms_s32 main(fms_s32 argc, fms_s8 *argv[]) {
 	fms_s8 cmd_buff[512] = {0};
 	linphone_event *event = NULL;
 
-	linphone_base_init("./linphone.cfg", linphone_native_event_callback, FMS_FALSE, FMS_FALSE, 0);
+	linphone_base_init("./linphone.cfg", linphone_native_event_callback);
 	while (1) {
 		memset(cmd_buff, 0 , sizeof(cmd_buff));
 		fgets(cmd_buff, sizeof(cmd_buff), stdin);//ªª––∑˚“≤∂¡»Î¡ÀÂ

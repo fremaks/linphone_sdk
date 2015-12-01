@@ -18,6 +18,7 @@ typedef struct _linphone_jni_context {
 
 extern jclass h264_codec_class;
 extern jclass video_display_class;
+extern jclass fms_camera_class;
 linphone_jni_context *jni_ctx = NULL;
 
 static fms_void 
@@ -108,13 +109,33 @@ linphone_jni_add_event(JNIEnv* env, jobject thiz, jint jevent_type,
 	(*env)->ReleaseStringUTFChars(env, jevent_data, event_data);
 }
 
+JNIEXPORT fms_void JNICALL 
+linphone_jni_openglesdisplay_init(JNIEnv* env, jobject thiz, jint ptr, jint width, 
+								             jint height) {
+	linphone_base_openglesdisplay_init(ptr, width, height);
+}
+
+JNIEXPORT fms_void JNICALL 
+linphone_jni_openglesdisplay_render(JNIEnv* env, jobject thiz, jint ptr) {
+	linphone_base_openglesdisplay_render(ptr);
+}
+
+JNIEXPORT fms_void JNICALL 
+linphone_jni_fmscamera_put_image(JNIEnv *env, jobject thiz, jbyteArray jyuvframe, 
+                                                jint length){
+
+	linphone_base_fmscamera_put_image((void *)env, (void *)&jyuvframe, length);
+}
 
 static JNINativeMethod linphone_interface_methods[] = { 
 	{"linphone_init", "(Ljava/lang/String;)I", (fms_void *)linphone_jni_init},
 	{"linphone_uninit", "(I)V", (fms_void *)linphone_jni_uninit},
 	{"linphone_set_native_window_id", "(L"VIDEO_DISPLAY_CLASS";)V",
 	                            (fms_void *)linphone_jni_set_native_window_id},
-	{"linphone_add_event", "(ILjava/lang/String;)V", (fms_void *)linphone_jni_add_event}
+	{"linphone_add_event", "(ILjava/lang/String;)V", (fms_void *)linphone_jni_add_event},
+	{"openglesdisplay_init", "(III)V", (fms_void *)linphone_jni_openglesdisplay_init},
+	{"openglesdisplay_render", "(I)V", (fms_void *)linphone_jni_openglesdisplay_render},
+	{"fmscamera_put_image", "([BI)V", (fms_void *)linphone_jni_fmscamera_put_image}
 };
 
 
@@ -164,7 +185,6 @@ JNIEXPORT jint JNICALL
 JNI_OnLoad(JavaVM *jvm, void *reserved) {
 	JNIEnv* env = NULL;
 	jint result = -1;
-	jclass fms_camera_class_local = 0;
 
 	if ((*jvm)->GetEnv(jvm, (void**)&env, JNI_VERSION_1_4) != JNI_OK) {
 		FMS_ERROR("GetEnv failed\n");
@@ -180,7 +200,7 @@ JNI_OnLoad(JavaVM *jvm, void *reserved) {
 	
 	h264_codec_class = get_global_class(env, H264_CODEC_CLASS);
 	video_display_class = get_global_class(env, VIDEO_DISPLAY_CLASS);
-	
+	fms_camera_class = get_global_class(env, FMS_CAMERA_CLASS);
 	linphone_base_set_jvm(jvm);
     result = JNI_VERSION_1_4;
 fail:		

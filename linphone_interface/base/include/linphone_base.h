@@ -28,7 +28,17 @@ fms_void linphone_base_set_native_window_id(fms_uintptr window_id);
 
 fms_void linphone_base_add_event(linphone_event *event);
 
+#if ANDROID
+
 fms_void linphone_base_set_jvm(fms_void *vm);
+
+fms_void linphone_base_openglesdisplay_init(fms_s32 ptr, fms_s32 width, fms_s32 height);
+
+fms_void linphone_base_openglesdisplay_render(fms_s32 ptr);
+
+fms_void linphone_base_fmscamera_put_image(void *env, void *yuvframe, int length);
+	
+#endif
 
 #ifdef __cplusplus
 }

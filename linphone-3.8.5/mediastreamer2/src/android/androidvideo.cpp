@@ -35,13 +35,6 @@ extern "C" {
 #include <jni.h>
 #include "fms_log.h"
 
-static jclass gCameraClass = 0;
-static jobject gCameraObject = 0;
-static jmethodID gCameraInitMethod = 0;
-static jmethodID gDetectCameraMethod = 0;
-static jmethodID gOpenCameraMethod = 0;
-static jmethodID gCloseCameraMethod = 0;
-
 #define UNDEFINED_ROTATION -1
 
 struct AndroidReaderContext {
@@ -77,8 +70,11 @@ struct AndroidReaderContext {
 	jobject androidCamera;
 	jobject previewWindow;
 	jclass helperClass;
+	jmethodID openID;
+	jmethodID closeID;
 };
 
+jclass fms_camera_class;
 
 static AndroidReaderContext *readerCtx = NULL;
 
@@ -88,66 +84,38 @@ static AndroidReaderContext *getContext(MSFilter *f) {
 	return (AndroidReaderContext*) f->data;
 }
 
-static int global_find_camera_class(void) {
-	int nRetVal = -1;	
-	jclass cameraClassTmp = 0;
-	jobject cameraObjectTmp = 0;
-	//JavaVM *jvm = ms_get_jvm();
-	//JNIEnv *env = NULL;
-	JNIEnv *env = ms_get_jni_env();
-	
-	cameraClassTmp = (jclass)env->FindClass("com/example/linphone/FmsCamera");
-	if (0 == cameraClassTmp)
-		goto failed;
-	gCameraClass = (jclass)env->NewGlobalRef(cameraClassTmp);
-	
-	gCameraInitMethod = env->GetMethodID(gCameraClass, "<init>", "()V");
-	if (0 == gCameraInitMethod) 
-		goto failed;
-
-	cameraObjectTmp = env->NewObject(gCameraClass, gCameraInitMethod);  
-	gCameraObject = (jobject)env->NewGlobalRef(cameraObjectTmp);
-	env->DeleteLocalRef(cameraObjectTmp);
-	
-   	gDetectCameraMethod = env->GetMethodID(gCameraClass, "detectCamera", "()I");
-	if (0 == gDetectCameraMethod) 
-		goto failed;
-	
-	gOpenCameraMethod = env->GetMethodID(gCameraClass, "openCamera", "(II)V");
-	if (0 == gOpenCameraMethod) 
-		goto failed;
-	
-	gCloseCameraMethod = env->GetMethodID(gCameraClass, "closeCamera", "()V");
-	if (0 == gCloseCameraMethod) 
-		goto failed;
-	
-	nRetVal = 0;
-	return nRetVal;
-failed:
-
-	if(cameraClassTmp)
-		env->DeleteLocalRef(cameraClassTmp);
-	
-	return nRetVal;
-}
-
 
 static void video_capture_init(MSFilter *f) {
 	AndroidReaderContext* d = new AndroidReaderContext(f, 0);
+	jmethodID constructID = 0;
+	JNIEnv *env = NULL;
+	JavaVM *jvm = ms_get_jvm();
+
 	f->data = d;
 	readerCtx = d;	
+
+	jvm->AttachCurrentThread(&env, NULL);
+		
+	constructID = env->GetMethodID(fms_camera_class, "<init>", "()V");
+	d->androidCamera = env->NewObject(fms_camera_class, constructID);  
+	d->androidCamera = (jobject)env->NewGlobalRef(d->androidCamera);
+
+	d->openID = env->GetMethodID(fms_camera_class, "openCamera", "(II)V");
+	d->closeID = env->GetMethodID(fms_camera_class, "closeCamera", "()V");
+	
+	jvm->DetachCurrentThread();	
 }
 
 static void video_capture_preprocess(MSFilter *f){
 	AndroidReaderContext *d = getContext(f);
-	//JNIEnv *env = ms_get_jni_env();
-	JNIEnv *env;
-	JavaVM *jvm= ms_get_jvm();
+	JNIEnv *env = NULL;
+	JavaVM *jvm = ms_get_jvm();
+	
 	jvm->AttachCurrentThread(&env, NULL);
 
-	if (gOpenCameraMethod) {
+	if (d->openID) {
 		ms_mutex_lock(&d->mutex);
-		env->CallVoidMethod(gCameraObject, gOpenCameraMethod, d->usedSize.width, d->usedSize.height);
+		env->CallVoidMethod(d->androidCamera, d->openID, d->usedSize.width, d->usedSize.height);
 		ms_mutex_unlock(&d->mutex);
 	}
 	
@@ -167,13 +135,14 @@ static void video_capture_process(MSFilter *f){
 }
 
 static void video_capture_postprocess(MSFilter *f){
-	//JNIEnv *env = ms_get_jni_env();
-	JNIEnv *env;
-	JavaVM *jvm= ms_get_jvm();
+	AndroidReaderContext *d = getContext(f);
+	JNIEnv *env = NULL;
+	JavaVM *jvm = ms_get_jvm();
+	
 	jvm->AttachCurrentThread(&env, NULL);
 	
-	if(gCloseCameraMethod) {
-		env->CallVoidMethod(gCameraObject, gCloseCameraMethod);
+	if (d->closeID) {
+		env->CallVoidMethod(d->androidCamera, d->closeID);
 	}
 	
 	jvm->DetachCurrentThread();	
@@ -272,25 +241,26 @@ MSWebCamDesc ms_android_video_capture_desc={
 
 static void video_capture_detect(MSWebCamManager *obj) {
 	JNIEnv *env = ms_get_jni_env();
-
-	if (global_find_camera_class() == 0) {	
-		int ret = env->CallIntMethod(gCameraObject, gDetectCameraMethod);
-		if (ret >= 0) {
-			MSWebCam *cam = ms_web_cam_new(&ms_android_video_capture_desc);
-			ms_web_cam_manager_add_cam(obj, cam);
-		}
+	jmethodID detectID = 0;
+	int ret = -1;
+	
+	detectID = env->GetStaticMethodID(fms_camera_class, "detectCamera", "()I");
+		
+    ret = env->CallStaticIntMethod(fms_camera_class, detectID);
+	if (0 == ret) {
+		MSWebCam *cam = ms_web_cam_new(&ms_android_video_capture_desc);
+		ms_web_cam_manager_add_cam(obj, cam);
 	}
+	
 }
 
-
-extern "C" void Java_com_example_linphone_FmsCamera_putImage(JNIEnv *env,
-		jobject thiz,jbyteArray jbadyuvframe, jint length) {
-
+extern "C" void fmscamera_put_image(void *env, void *yuvframe, int length) {
+	JNIEnv *jenv = (JNIEnv *)env; 
+	jbyteArray *jyuvframe = (jbyteArray *)yuvframe;
 	AndroidReaderContext* d = readerCtx;
-	jbyte* jinternal_buff = env->GetByteArrayElements(jbadyuvframe, 0);
+	jbyte* jinternal_buff = jenv->GetByteArrayElements(*jyuvframe, 0);
 
 	int yuv_size = (d->usedSize.width)*(d->usedSize.height)*3/2;
-	//int yuv_size = 640*480*3/2;
 	mblk_t *yuv420 = allocb(yuv_size, 0);
 	memcpy(yuv420->b_rptr, jinternal_buff, yuv_size);
 	yuv420->b_wptr += yuv_size;
@@ -304,5 +274,6 @@ extern "C" void Java_com_example_linphone_FmsCamera_putImage(JNIEnv *env,
 	d->frame = yuv420;
 	ms_mutex_unlock(&d->mutex);
 	
-	env->ReleaseByteArrayElements(jbadyuvframe, jinternal_buff, 0);
+	jenv->ReleaseByteArrayElements(*jyuvframe, jinternal_buff, 0);
 }
+
