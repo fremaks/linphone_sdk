@@ -19,7 +19,7 @@ typedef struct _linphone_jni_context {
 extern jclass h264_codec_class;
 extern jclass video_display_class;
 extern jclass fms_camera_class;
-linphone_jni_context *jni_ctx = NULL;
+static linphone_jni_context *jni_ctx = NULL;
 
 static fms_void 
 linphone_jni_event_callback(linphone_event *event) {

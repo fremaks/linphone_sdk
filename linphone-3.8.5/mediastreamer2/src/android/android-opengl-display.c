@@ -39,34 +39,34 @@ typedef struct AndroidDisplay{
 jclass video_display_class;
 
 static void android_display_init(MSFilter *f){
-	AndroidDisplay *ad=(AndroidDisplay*)ms_new0(AndroidDisplay,1);
-	JNIEnv *jenv=NULL;
-	JavaVM *jvms= ms_get_jvm();
+	AndroidDisplay *ad = (AndroidDisplay*)ms_new0(AndroidDisplay,1);
+	JNIEnv *jenv = NULL;
+	JavaVM *jvm = ms_get_jvm();
 	
-	(*jvms)->AttachCurrentThread(jvms, &jenv, NULL); 
+	(*jvm)->AttachCurrentThread(jvm, &jenv, NULL); 
 	//jenv=ms_get_jni_env();
 	
-	ad->set_opengles_display_id=(*jenv)->GetMethodID(jenv,video_display_class,"setOpenGLESDisplay","(I)V");
-	ad->request_render_id=(*jenv)->GetMethodID(jenv,video_display_class,"requestRender","()V");
+	ad->set_opengles_display_id = (*jenv)->GetMethodID(jenv,video_display_class,"setOpenGLESDisplay","(I)V");
+	ad->request_render_id = (*jenv)->GetMethodID(jenv,video_display_class,"requestRender","()V");
 	if (ad->set_opengles_display_id == 0)
 		ms_error("Could not find 'setOpenGLESDisplay' method\n");
 	if (ad->request_render_id == 0)
 		ms_error("Could not find 'requestRender' method\n");
 	ad->ogl = ogl_display_new();
 
-	f->data=ad;
+	f->data = ad;
 	ms_message("%s %p %p", __FUNCTION__, f, ad);
 	
-	(*jvms)->DetachCurrentThread(jvms);
+	(*jvm)->DetachCurrentThread(jvm);
 }
 
 static void android_display_uninit(MSFilter *f){
-	AndroidDisplay *ad=(AndroidDisplay*)f->data;
+	AndroidDisplay *ad = (AndroidDisplay*)f->data;
 	//JNIEnv *jenv=ms_get_jni_env();
-	JNIEnv *jenv=NULL;
-	JavaVM *jvms= ms_get_jvm();
+	JNIEnv *jenv = NULL;
+	JavaVM *jvm = ms_get_jvm();
 	ms_message("%s %p %p", __FUNCTION__, f, ad->ogl);
-	(*jvms)->AttachCurrentThread(jvms, &jenv, NULL); 
+	(*jvm)->AttachCurrentThread(jvm, &jenv, NULL); 
 	
 	if (ad->ogl) {
 		/* clear native ptr, to prevent rendering to occur now that ptr is invalid */
@@ -77,7 +77,7 @@ static void android_display_uninit(MSFilter *f){
 	}
 	if (ad->android_video_window) (*jenv)->DeleteGlobalRef(jenv, ad->android_video_window);
 	ms_free(ad);
-	(*jvms)->DetachCurrentThread(jvms);
+	(*jvm)->DetachCurrentThread(jvm);
 }
 
 static void android_display_preprocess(MSFilter *f){
@@ -85,14 +85,14 @@ static void android_display_preprocess(MSFilter *f){
 }
 
 static void android_display_process(MSFilter *f){
-	AndroidDisplay *ad=(AndroidDisplay*)f->data;
+	AndroidDisplay *ad = (AndroidDisplay*)f->data;
 	MSPicture pic;
-	mblk_t *m;
+	mblk_t *m = NULL;
 	//JNIEnv *jenv=ms_get_jni_env();
-	JavaVM *jvms= ms_get_jvm();
-	JNIEnv *jenv;
+	JavaVM *jvm = ms_get_jvm();
+	JNIEnv *jenv = NULL;
 
-	(*jvms)->AttachCurrentThread(jvms, &jenv, NULL); 
+	(*jvm)->AttachCurrentThread(jvm, &jenv, NULL); 
 	
 	ms_filter_lock(f);
 	if (ad->android_video_window){
@@ -117,24 +117,24 @@ static void android_display_process(MSFilter *f){
 		FMS_WARN("####################android_display_process 5-2\n");
 		ms_queue_flush(f->inputs[1]);
 	}*/
-	(*jvms)->DetachCurrentThread(jvms);
+	(*jvm)->DetachCurrentThread(jvm);
 }
 
 static int android_display_set_window(MSFilter *f, void *arg){
-	AndroidDisplay *ad=(AndroidDisplay*)f->data;
-	unsigned long id=*(unsigned long*)arg;
+	AndroidDisplay *ad = (AndroidDisplay*)f->data;
+	unsigned long id = *(unsigned long*)arg;
 	//JNIEnv *jenv=ms_get_jni_env();
-	JavaVM *jvms= ms_get_jvm();
-	JNIEnv *jenv;
-	jobject window=(jobject)id;
+	JavaVM *jvm = ms_get_jvm();
+	JNIEnv *jenv = NULL;
+	jobject window = (jobject)id;
 	jobject old_window;
 	
-	(*jvms)->AttachCurrentThread(jvms, &jenv, NULL); 
+	(*jvm)->AttachCurrentThread(jvm, &jenv, NULL); 
 	
 	if (window == ad->android_video_window) return 0;
 	
 	ms_filter_lock(f);
-	old_window=ad->android_video_window;
+	old_window = ad->android_video_window;
 	
 	if (ad->android_video_window) {
 		ms_message("Clearing old opengles_display (%p)", ad->ogl);
@@ -159,19 +159,19 @@ static int android_display_set_window(MSFilter *f, void *arg){
 
 	ms_filter_unlock(f);
 	
-	(*jvms)->DetachCurrentThread(jvms);
+	(*jvm)->DetachCurrentThread(jvm);
 	return 0;
 }
 
 static int android_display_set_zoom(MSFilter* f, void* arg) {
-	AndroidDisplay* thiz=(AndroidDisplay*)f->data;
+	AndroidDisplay* thiz = (AndroidDisplay*)f->data;
 	ogl_display_zoom(thiz->ogl, arg);
 	return 0;
 }
 
 static MSFilterMethod methods[]={
 	{	MS_VIDEO_DISPLAY_SET_NATIVE_WINDOW_ID , android_display_set_window },
-    	{  	MS_VIDEO_DISPLAY_ZOOM, android_display_set_zoom},
+    {  	MS_VIDEO_DISPLAY_ZOOM, android_display_set_zoom},
 	{	0, NULL}
 };
 
@@ -190,6 +190,6 @@ MSFilterDesc ms_android_opengl_display_desc={
 };
 
 void libmsandroidopengldisplay_init(MSFactory *factory){
-	ms_factory_register_filter(factory,&ms_android_opengl_display_desc);
+	ms_factory_register_filter(factory, &ms_android_opengl_display_desc);
 	ms_message("MSAndroidDisplay (OpenGL ES2) registered (id=%d).", MS_ANDROID_DISPLAY_ID);
 }

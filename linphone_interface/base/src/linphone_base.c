@@ -28,7 +28,7 @@ typedef struct _linphone_base_conext {
 	fms_s8 display_status[512];
 } linphone_base_context;
 
-linphone_base_context *base_ctx = NULL;
+static linphone_base_context *base_ctx = NULL;
 
 static fms_void 
 linphone_registration_state_changed(LinphoneCore *lc, LinphoneCall *call, 
