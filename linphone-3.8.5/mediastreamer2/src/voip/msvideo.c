@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-#include "fms_log.h"
+
 #include "mediastreamer2/msvideo.h"
 #if !defined(NO_FFMPEG)
 #include "ffmpeg-priv.h"
@@ -86,8 +86,7 @@ int ms_yuv_buf_init_from_mblk(YuvBuf *buf, mblk_t *m){
 	mblk_video_header* hdr = (mblk_video_header*)m->b_datap->db_base;
 	w = hdr->w;
 	h = hdr->h;
-	w = 800;
-	h = 480;
+
 	if (m->b_cont == NULL)
 		yuv_buf_init(buf,w,h,m->b_rptr);
 	else
@@ -590,9 +589,8 @@ static MSScalerDesc android_scaler={
 #endif
 
 
-//#if defined(ANDROID) && defined(__ARM_NEON__)
-#if defined(ANDROID)
-//#include <arm_neon.h>
+#if defined(ANDROID) && defined(__ARM_NEON__)
+#include <arm_neon.h>
 extern MSScalerDesc ms_android_scaler;
 
 static MSScalerDesc *scaler_impl=&ms_android_scaler;

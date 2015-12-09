@@ -16,7 +16,7 @@ typedef struct _linphone_jni_context {
 	jmethodID callback_method_id;
 } linphone_jni_context;
 
-extern jclass h264_codec_class;
+//extern jclass h264_codec_class;
 extern jclass video_display_class;
 extern jclass fms_camera_class;
 static linphone_jni_context *jni_ctx = NULL;
@@ -198,7 +198,7 @@ JNI_OnLoad(JavaVM *jvm, void *reserved) {
 		goto fail;
 	}
 	
-	h264_codec_class = get_global_class(env, H264_CODEC_CLASS);
+	//h264_codec_class = get_global_class(env, H264_CODEC_CLASS);
 	video_display_class = get_global_class(env, VIDEO_DISPLAY_CLASS);
 	fms_camera_class = get_global_class(env, FMS_CAMERA_CLASS);
 	linphone_base_set_jvm(jvm);

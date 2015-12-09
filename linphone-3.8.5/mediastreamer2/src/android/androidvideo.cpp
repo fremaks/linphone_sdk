@@ -259,11 +259,11 @@ extern "C" void fmscamera_put_image(void *env, void *yuvframe, int length) {
 	jbyteArray *jyuvframe = (jbyteArray *)yuvframe;
 	AndroidReaderContext* d = readerCtx;
 	jbyte* jinternal_buff = jenv->GetByteArrayElements(*jyuvframe, 0);
-
-	int yuv_size = (d->usedSize.width)*(d->usedSize.height)*3/2;
-	mblk_t *yuv420 = allocb(yuv_size, 0);
-	memcpy(yuv420->b_rptr, jinternal_buff, yuv_size);
-	yuv420->b_wptr += yuv_size;
+	MSPicture pict;
+	
+	
+	mblk_t *yuv_block = ms_yuv_buf_alloc(&pict, d->usedSize.width, d->usedSize.height);
+	memcpy(yuv_block->b_rptr, jinternal_buff, yuv_block->b_wptr - yuv_block->b_rptr);
 
 	ms_mutex_lock(&d->mutex);
 	if (d->frame != 0) {
@@ -271,7 +271,7 @@ extern "C" void fmscamera_put_image(void *env, void *yuvframe, int length) {
 		freemsg(d->frame);
 		d->frame = 0;
 	}
-	d->frame = yuv420;
+	d->frame = yuv_block;
 	ms_mutex_unlock(&d->mutex);
 	
 	jenv->ReleaseByteArrayElements(*jyuvframe, jinternal_buff, 0);

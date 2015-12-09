@@ -197,6 +197,7 @@ void linphone_core_update_streams(LinphoneCore *lc, LinphoneCall *call, SalMedia
 	}
 	if (call->state==LinphoneCallIncomingEarlyMedia) {//incomeing:default close camera
 		linphone_call_enable_camera(call, FALSE);
+		linphone_core_mute_mic(lc ,TRUE);
 	}
 	if (call->params->real_early_media && call->state==LinphoneCallOutgoingEarlyMedia){
 		prepare_early_media_forking(call);

@@ -83,16 +83,16 @@ static inline int avcodec_decode_video2(AVCodecContext *avctx, AVFrame *picture,
 #endif
 
 #ifndef HAVE_FUN_avcodec_encode_video2
-int avcodec_encode_video2 (AVCodecContext *avctx, AVPacket *avpkt, const AVFrame *frame, int *got_packet_ptr);
+//int avcodec_encode_video2 (AVCodecContext *avctx, AVPacket *avpkt, const AVFrame *frame, int *got_packet_ptr);
 #endif
 
 #ifndef HAVE_FUN_avcodec_get_context_defaults3 /**/
-int avcodec_get_context_defaults3 (AVCodecContext *s, const AVCodec *codec);
-AVCodecContext *avcodec_alloc_context3(AVCodec *codec);
+//int avcodec_get_context_defaults3 (AVCodecContext *s, const AVCodec *codec);
+//AVCodecContext *avcodec_alloc_context3(AVCodec *codec);
 #endif
 
 #ifndef HAVE_FUN_avcodec_open2 /**/
-int avcodec_open2 (AVCodecContext *avctx, const AVCodec *codec, /*AVDictionary*/ void **options);
+//int avcodec_open2 (AVCodecContext *avctx, const AVCodec *codec, /*AVDictionary*/ void **options);
 #endif
 
 #ifndef HAVE_FUN_av_frame_alloc

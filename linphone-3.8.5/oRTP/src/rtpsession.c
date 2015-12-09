@@ -288,7 +288,7 @@ rtp_session_init (RtpSession * session, int mode)
 	jbp.max_size=-1;
 	jbp.max_packets= 100;/* maximum number of packet allowed to be queued */
 	jbp.adaptive=TRUE;
-	rtp_session_enable_jitter_buffer(session,TRUE);
+	rtp_session_enable_jitter_buffer(session,FALSE);
 	rtp_session_set_jitter_buffer_params(session,&jbp);
 	rtp_session_set_time_jump_limit(session,5000);
 	rtp_session_enable_rtcp(session,TRUE);

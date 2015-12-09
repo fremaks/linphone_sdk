@@ -270,6 +270,7 @@ linphone_hangup(LinphoneCore *lc) {
 
 static fms_s32
 linphone_answer(LinphoneCore *lc){
+	linphone_core_mute_mic(lc, FMS_FALSE);
 	return linphone_core_accept_call(lc, NULL);
 }
 
@@ -422,7 +423,6 @@ void *linphone_event_thread(void *arg) {
 fms_s32 linphone_base_init(const fms_s8 *configfile_name, 
 								 linphone_event_callback event_callback) {
 	LinphoneCoreVTable linphone_vtable = {0};
-	MSVideoSize vsize = {320, 240};
 	
 	if (base_ctx != NULL) {
 		FMS_ERROR("linphone base has aleardy init\n");
@@ -483,7 +483,7 @@ fms_s32 linphone_base_init(const fms_s8 *configfile_name,
 	//linphone_core_set_zrtp_secrets_file(linphonec, zrtpsecrets);
 	//linphone_core_set_user_certificates_path(linphonec,usr_certificates_path);
 	//linphone_core_enable_video_preview(linphonec,preview_enabled);
-	linphone_core_set_preview_video_size(base_ctx->lc, vsize);
+	//linphone_core_set_preview_video_size(base_ctx->lc, vsize);
 
 	
 	base_ctx->event_queue = fms_queue_new(); 

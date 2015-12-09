@@ -317,8 +317,7 @@ if ORTP_ENABLED
 libmediastreamer_voip_la_SOURCES+=	voip/videostream.c
 endif
 
-libmediastreamer_voip_la_SOURCES+= videofilters/h264enc.c \
-				   videofilters/h264dec.c 
+libmediastreamer_voip_la_SOURCES+= videofilters/h264enc.c
 endif BUILD_VIDEO
 
 endif MS2_FILTERS

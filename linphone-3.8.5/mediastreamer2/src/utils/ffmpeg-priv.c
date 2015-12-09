@@ -22,7 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
 #ifndef HAVE_FUN_avcodec_encode_video2
-int avcodec_encode_video2 (AVCodecContext *avctx, AVPacket *avpkt, const AVFrame *frame, int *got_packet_ptr) {
+/*int avcodec_encode_video2 (AVCodecContext *avctx, AVPacket *avpkt, const AVFrame *frame, int *got_packet_ptr) {
 	int error=avcodec_encode_video(avctx, avpkt->data, avpkt->size,frame);
 	if (error<0){
 		return error;
@@ -33,29 +33,31 @@ int avcodec_encode_video2 (AVCodecContext *avctx, AVPacket *avpkt, const AVFrame
 		}else *got_packet_ptr=0;
 	}
 	return 0;
-}
+}*/
 #endif
 
 
 
 #ifndef HAVE_FUN_avcodec_get_context_defaults3 /**/
-int avcodec_get_context_defaults3 (AVCodecContext *s, const AVCodec *codec) {
+/*int avcodec_get_context_defaults3 (AVCodecContext *s, const AVCodec *codec) {
 	avcodec_get_context_defaults(s);
 	return 0;
 }
 
 AVCodecContext *avcodec_alloc_context3(AVCodec *codec){
 	return avcodec_alloc_context();
-}
+}*/
 
 #endif
 
 
 
 #ifndef HAVE_FUN_avcodec_open2 /**/
+#if 0
 int avcodec_open2 (AVCodecContext *avctx, const AVCodec *codec, /*AVDictionary*/ void **options) {
 	return avcodec_open(avctx, (AVCodec*)codec);
 }
+#endif
 #endif
 
 #ifndef HAVE_FUN_av_frame_alloc
