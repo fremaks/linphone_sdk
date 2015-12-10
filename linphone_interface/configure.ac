@@ -1,7 +1,7 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-AC_PREREQ([2.69])
+AC_PREREQ([2.62])
 AC_INIT([linphone_interface], [1.0], [fremaks@163.com])
 AM_INIT_AUTOMAKE([linphone_interface], [1.0])
 AC_CONFIG_SRCDIR([base/src/linphone_event.c])

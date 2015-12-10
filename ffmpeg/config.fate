@@ -1,0 +1,1 @@
+config:arm:armv5te:armv5te:linux:gcc 4.6 (GCC) 20120106 (prerelease):--cross-prefix=arm-linux-androideabi- --enable-cross-compile --target-os=linux --arch=arm --enable-shared --disable-static
