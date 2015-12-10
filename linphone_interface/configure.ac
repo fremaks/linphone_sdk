@@ -22,7 +22,6 @@ AC_PROG_LIBTOOL
 # Checks for typedefs, structures, and compiler characteristics.
 
 # Checks for library functions.
-AC_FUNC_MALLOC                   
 
 
 AC_ARG_ENABLE(android,
