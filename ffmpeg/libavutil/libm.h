@@ -117,15 +117,15 @@ static av_always_inline av_const int isnan(float x)
 #define llrintf(x) ((long long)rint(x))
 #endif /* HAVE_LLRINT */
 
-#if !HAVE_LOG2
+//#if !HAVE_LOG2
 #undef log2
 #define log2(x) (log(x) * 1.44269504088896340736)
-#endif /* HAVE_LOG2 */
+//#endif /* HAVE_LOG2 */
 
-#if !HAVE_LOG2F
+//#if !HAVE_LOG2F
 #undef log2f
 #define log2f(x) ((float)log2(x))
-#endif /* HAVE_LOG2F */
+//#endif /* HAVE_LOG2F */
 
 #if !HAVE_LOG10F
 #undef log10f
