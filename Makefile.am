@@ -4,5 +4,5 @@ if BUILD_ALSA
 #SUBDIRS += alsa-lib-1.0.23 
 endif
 
-SUBDIRS += linphone-3.8.5 linphone_interface
+SUBDIRS += linphone-3.8.5 mswebrtc linphone_interface
 

@@ -1,0 +1,2 @@
+webrtc_fft_t_1024_8.lo: \
+ webrtc/common_audio/signal_processing/webrtc_fft_t_1024_8.c

@@ -418,7 +418,7 @@ void *linphone_event_thread(void *arg) {
 	return (void *)0;
 }
 
-
+extern void libmswebrtc_init();
 
 fms_s32 linphone_base_init(const fms_s8 *configfile_name, 
 								 linphone_event_callback event_callback) {
@@ -478,7 +478,7 @@ fms_s32 linphone_base_init(const fms_s8 *configfile_name,
 
 
 	base_ctx->lc = linphone_core_new(&linphone_vtable, configfile_name, NULL, NULL);
-
+	libmswebrtc_init();
 	linphone_core_set_user_agent(base_ctx->lc, "Linphone_base",  LINPHONE_VERSION);
 	//linphone_core_set_zrtp_secrets_file(linphonec, zrtpsecrets);
 	//linphone_core_set_user_certificates_path(linphonec,usr_certificates_path);

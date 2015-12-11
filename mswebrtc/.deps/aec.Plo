@@ -1,0 +1,292 @@
+aec.lo: aec.c \
+ /home/hf/harry.he/linphone_sdk/linphone-3.8.5/mediastreamer2/include/mediastreamer2/msfilter.h \
+ /home/hf/harry.he/linphone_sdk/linphone-3.8.5/mediastreamer2/include/mediastreamer2/mscommon.h \
+ /home/hf/harry.he/linphone_sdk/linphone-3.8.5/oRTP/include/ortp/logging.h \
+ /home/hf/harry.he/linphone_sdk/linphone-3.8.5/oRTP/include/ortp/port.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/errno.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/sys/cdefs.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/sys/cdefs_elf.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/android/api-level.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/linux/errno.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/asm/errno.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/asm-generic/errno.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/asm-generic/errno-base.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/sys/types.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../lib/gcc/arm-linux-androideabi/4.6/include/stddef.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../lib/gcc/arm-linux-androideabi/4.6/include/stdint.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/stdint.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/sys/_types.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/machine/_types.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/sys/_wchar_limits.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/linux/posix_types.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/linux/stddef.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/linux/compiler.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/asm/posix_types.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/asm/types.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/linux/types.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/machine/kernel.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/sys/sysmacros.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/pthread.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/time.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/sys/time.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/linux/time.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/asm/siginfo.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/asm-generic/siginfo.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/signal.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../lib/gcc/arm-linux-androideabi/4.6/include-fixed/limits.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../lib/gcc/arm-linux-androideabi/4.6/include-fixed/syslimits.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/limits.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/sys/limits.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/linux/limits.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/machine/internal_types.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/machine/limits.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/sys/syslimits.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/asm/page.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/string.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/malloc.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/asm/signal.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/asm-generic/signal.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/asm/sigcontext.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/sched.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/unistd.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/sys/select.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/sys/sysconf.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/linux/capability.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/pathconf.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/fcntl.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/linux/fcntl.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/asm/fcntl.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/asm-generic/fcntl.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/stdlib.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/alloca.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/strings.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/memory.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../lib/gcc/arm-linux-androideabi/4.6/include-fixed/stdio.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../lib/gcc/arm-linux-androideabi/4.6/include/stdarg.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/sys/socket.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/linux/socket.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/asm/socket.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/asm/sockios.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/linux/sockios.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/linux/uio.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/netinet/in.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/endian.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/sys/endian.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/machine/endian.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/linux/in.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/asm/byteorder.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/linux/byteorder/little_endian.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/linux/byteorder/swab.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/linux/byteorder/generic.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/linux/in6.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/linux/ipv6.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/netinet/in6.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/arpa/inet.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/netdb.h \
+ /home/hf/harry.he/linphone_sdk/linphone-3.8.5/oRTP/include/ortp/str_utils.h \
+ /home/hf/harry.he/linphone_sdk/linphone-3.8.5/oRTP/include/ortp/payloadtype.h \
+ /home/hf/harry.he/linphone_sdk/linphone-3.8.5/mediastreamer2/include/mediastreamer2/msqueue.h \
+ /home/hf/harry.he/linphone_sdk/linphone-3.8.5/mediastreamer2/include/mediastreamer2/allfilters.h \
+ /home/hf/harry.he/linphone_sdk/linphone-3.8.5/mediastreamer2/include/mediastreamer2/formats.h \
+ /home/hf/harry.he/linphone_sdk/linphone-3.8.5/mediastreamer2/include/mediastreamer2/msinterfaces.h \
+ /home/hf/harry.he/linphone_sdk/linphone-3.8.5/mediastreamer2/include/mediastreamer2/mscodecutils.h \
+ /home/hf/harry.he/linphone_sdk/linphone-3.8.5/mediastreamer2/include/mediastreamer2/msfactory.h \
+ /home/hf/harry.he/linphone_sdk/linphone-3.8.5/mediastreamer2/include/mediastreamer2/msticker.h \
+ webrtc/modules/audio_processing/aecm/include/echo_control_mobile.h \
+ webrtc/typedefs.h \
+ /home/hf/harry.he/linphone_sdk/linphone-3.8.5/oRTP/include/ortp/b64.h \
+ /home/hf/harry.he/linphone_sdk/linphone-3.8.5/mediastreamer2/include/mediastreamer2/flowcontrol.h
+
+/home/hf/harry.he/linphone_sdk/linphone-3.8.5/mediastreamer2/include/mediastreamer2/msfilter.h:
+
+/home/hf/harry.he/linphone_sdk/linphone-3.8.5/mediastreamer2/include/mediastreamer2/mscommon.h:
+
+/home/hf/harry.he/linphone_sdk/linphone-3.8.5/oRTP/include/ortp/logging.h:
+
+/home/hf/harry.he/linphone_sdk/linphone-3.8.5/oRTP/include/ortp/port.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/errno.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/sys/cdefs.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/sys/cdefs_elf.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/android/api-level.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/linux/errno.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/asm/errno.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/asm-generic/errno.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/asm-generic/errno-base.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/sys/types.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../lib/gcc/arm-linux-androideabi/4.6/include/stddef.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../lib/gcc/arm-linux-androideabi/4.6/include/stdint.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/stdint.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/sys/_types.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/machine/_types.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/sys/_wchar_limits.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/linux/posix_types.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/linux/stddef.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/linux/compiler.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/asm/posix_types.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/asm/types.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/linux/types.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/machine/kernel.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/sys/sysmacros.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/pthread.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/time.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/sys/time.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/linux/time.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/asm/siginfo.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/asm-generic/siginfo.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/signal.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../lib/gcc/arm-linux-androideabi/4.6/include-fixed/limits.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../lib/gcc/arm-linux-androideabi/4.6/include-fixed/syslimits.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/limits.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/sys/limits.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/linux/limits.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/machine/internal_types.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/machine/limits.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/sys/syslimits.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/asm/page.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/string.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/malloc.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/asm/signal.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/asm-generic/signal.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/asm/sigcontext.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/sched.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/unistd.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/sys/select.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/sys/sysconf.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/linux/capability.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/pathconf.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/fcntl.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/linux/fcntl.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/asm/fcntl.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/asm-generic/fcntl.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/stdlib.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/alloca.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/strings.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/memory.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../lib/gcc/arm-linux-androideabi/4.6/include-fixed/stdio.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../lib/gcc/arm-linux-androideabi/4.6/include/stdarg.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/sys/socket.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/linux/socket.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/asm/socket.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/asm/sockios.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/linux/sockios.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/linux/uio.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/netinet/in.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/endian.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/sys/endian.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/machine/endian.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/linux/in.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/asm/byteorder.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/linux/byteorder/little_endian.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/linux/byteorder/swab.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/linux/byteorder/generic.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/linux/in6.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/linux/ipv6.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/netinet/in6.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/arpa/inet.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/netdb.h:
+
+/home/hf/harry.he/linphone_sdk/linphone-3.8.5/oRTP/include/ortp/str_utils.h:
+
+/home/hf/harry.he/linphone_sdk/linphone-3.8.5/oRTP/include/ortp/payloadtype.h:
+
+/home/hf/harry.he/linphone_sdk/linphone-3.8.5/mediastreamer2/include/mediastreamer2/msqueue.h:
+
+/home/hf/harry.he/linphone_sdk/linphone-3.8.5/mediastreamer2/include/mediastreamer2/allfilters.h:
+
+/home/hf/harry.he/linphone_sdk/linphone-3.8.5/mediastreamer2/include/mediastreamer2/formats.h:
+
+/home/hf/harry.he/linphone_sdk/linphone-3.8.5/mediastreamer2/include/mediastreamer2/msinterfaces.h:
+
+/home/hf/harry.he/linphone_sdk/linphone-3.8.5/mediastreamer2/include/mediastreamer2/mscodecutils.h:
+
+/home/hf/harry.he/linphone_sdk/linphone-3.8.5/mediastreamer2/include/mediastreamer2/msfactory.h:
+
+/home/hf/harry.he/linphone_sdk/linphone-3.8.5/mediastreamer2/include/mediastreamer2/msticker.h:
+
+webrtc/modules/audio_processing/aecm/include/echo_control_mobile.h:
+
+webrtc/typedefs.h:
+
+/home/hf/harry.he/linphone_sdk/linphone-3.8.5/oRTP/include/ortp/b64.h:
+
+/home/hf/harry.he/linphone_sdk/linphone-3.8.5/mediastreamer2/include/mediastreamer2/flowcontrol.h:

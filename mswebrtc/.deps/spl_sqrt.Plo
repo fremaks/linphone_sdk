@@ -1,0 +1,43 @@
+spl_sqrt.lo: webrtc/common_audio/signal_processing/spl_sqrt.c \
+ webrtc/common_audio/signal_processing/include/signal_processing_library.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/string.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/sys/cdefs.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/sys/cdefs_elf.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/android/api-level.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../lib/gcc/arm-linux-androideabi/4.6/include/stddef.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/malloc.h \
+ webrtc/typedefs.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../lib/gcc/arm-linux-androideabi/4.6/include/stdint.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/stdint.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/sys/_types.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/machine/_types.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/sys/_wchar_limits.h \
+ webrtc/common_audio/signal_processing/include/spl_inl.h
+
+webrtc/common_audio/signal_processing/include/signal_processing_library.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/string.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/sys/cdefs.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/sys/cdefs_elf.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/android/api-level.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../lib/gcc/arm-linux-androideabi/4.6/include/stddef.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/malloc.h:
+
+webrtc/typedefs.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../lib/gcc/arm-linux-androideabi/4.6/include/stdint.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/stdint.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/sys/_types.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/machine/_types.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/sys/_wchar_limits.h:
+
+webrtc/common_audio/signal_processing/include/spl_inl.h:

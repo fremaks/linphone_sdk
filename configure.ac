@@ -25,6 +25,7 @@ AC_CONFIG_SUBDIRS([fremaks_utils
 		   belle-sip-1.4.1
                    libxml2-2.9.1
 		   linphone-3.8.5
+		   mswebrtc
 		   linphone_interface])
 AC_ARG_ENABLE(android,
         [AS_HELP_STRING([--enable-android=[yes/no]], [Turn on compilation of android support (default=no)])],

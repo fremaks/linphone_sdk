@@ -1,0 +1,108 @@
+aecm_core.lo: webrtc/modules/audio_processing/aecm/aecm_core.c \
+ webrtc/modules/audio_processing/aecm/aecm_core.h webrtc/typedefs.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../lib/gcc/arm-linux-androideabi/4.6/include/stdint.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/stdint.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../lib/gcc/arm-linux-androideabi/4.6/include/stddef.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/sys/_types.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/machine/_types.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/sys/_wchar_limits.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/android/api-level.h \
+ webrtc/common_audio/signal_processing/include/signal_processing_library.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/string.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/sys/cdefs.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/sys/cdefs_elf.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/malloc.h \
+ webrtc/common_audio/signal_processing/include/spl_inl.h \
+ webrtc/modules/audio_processing/aecm/aecm_defines.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/assert.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/stdlib.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/alloca.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/strings.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/sys/types.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/linux/posix_types.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/linux/stddef.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/linux/compiler.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/asm/posix_types.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/asm/types.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/linux/types.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/machine/kernel.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/sys/sysmacros.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/memory.h \
+ webrtc/common_audio/signal_processing/include/real_fft.h \
+ webrtc/system_wrappers/interface/cpu_features_wrapper.h \
+ webrtc/modules/audio_processing/utility/delay_estimator_wrapper.h \
+ webrtc/modules/audio_processing/aecm/include/echo_control_mobile.h \
+ webrtc/modules/audio_processing/utility/ring_buffer.h \
+ webrtc/system_wrappers/interface/compile_assert.h
+
+webrtc/modules/audio_processing/aecm/aecm_core.h:
+
+webrtc/typedefs.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../lib/gcc/arm-linux-androideabi/4.6/include/stdint.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/stdint.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../lib/gcc/arm-linux-androideabi/4.6/include/stddef.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/sys/_types.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/machine/_types.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/sys/_wchar_limits.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/android/api-level.h:
+
+webrtc/common_audio/signal_processing/include/signal_processing_library.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/string.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/sys/cdefs.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/sys/cdefs_elf.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/malloc.h:
+
+webrtc/common_audio/signal_processing/include/spl_inl.h:
+
+webrtc/modules/audio_processing/aecm/aecm_defines.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/assert.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/stdlib.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/alloca.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/strings.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/sys/types.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/linux/posix_types.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/linux/stddef.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/linux/compiler.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/asm/posix_types.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/asm/types.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/linux/types.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/machine/kernel.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/sys/sysmacros.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/memory.h:
+
+webrtc/common_audio/signal_processing/include/real_fft.h:
+
+webrtc/system_wrappers/interface/cpu_features_wrapper.h:
+
+webrtc/modules/audio_processing/utility/delay_estimator_wrapper.h:
+
+webrtc/modules/audio_processing/aecm/include/echo_control_mobile.h:
+
+webrtc/modules/audio_processing/utility/ring_buffer.h:
+
+webrtc/system_wrappers/interface/compile_assert.h:

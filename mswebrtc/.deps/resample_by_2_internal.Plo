@@ -1,0 +1,29 @@
+resample_by_2_internal.lo: \
+ webrtc/common_audio/signal_processing/resample_by_2_internal.c \
+ webrtc/common_audio/signal_processing/resample_by_2_internal.h \
+ webrtc/typedefs.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../lib/gcc/arm-linux-androideabi/4.6/include/stdint.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/stdint.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../lib/gcc/arm-linux-androideabi/4.6/include/stddef.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/sys/_types.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/machine/_types.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/sys/_wchar_limits.h \
+ /home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/android/api-level.h
+
+webrtc/common_audio/signal_processing/resample_by_2_internal.h:
+
+webrtc/typedefs.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../lib/gcc/arm-linux-androideabi/4.6/include/stdint.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/stdint.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../lib/gcc/arm-linux-androideabi/4.6/include/stddef.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/sys/_types.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/machine/_types.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/sys/_wchar_limits.h:
+
+/home/hf/harry.he/arm-linux-androideabi-4.6/bin/../sysroot/usr/include/android/api-level.h:
