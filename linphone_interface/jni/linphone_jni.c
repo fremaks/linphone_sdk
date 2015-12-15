@@ -6,10 +6,11 @@
 
 
 #define NELEM(x)                   (sizeof(x)/sizeof((x)[0]))
-#define LINPHONE_INTERFACE_CLASS   "com/example/linphone/LinphoneInterface"
-#define FMS_CAMERA_CLASS       	   "com/example/linphone/FmsCamera"
-#define H264_CODEC_CLASS           "com/example/linphone/H264Codec"
-#define VIDEO_DISPLAY_CLASS    	   "com/example/linphone/VideoDisplay"
+#define ANDROID_APP_PACKAGE_NAME   "com/lorent/linphone/"
+#define LINPHONE_INTERFACE_CLASS   ANDROID_APP_PACKAGE_NAME"LinphoneInterface"
+#define FMS_CAMERA_CLASS       	   ANDROID_APP_PACKAGE_NAME"FmsCamera"
+#define H264_CODEC_CLASS           ANDROID_APP_PACKAGE_NAME"H264Codec"
+#define VIDEO_DISPLAY_CLASS    	   ANDROID_APP_PACKAGE_NAME"VideoDisplay"
 
 typedef struct _linphone_jni_context {
 	jobject interface_obj;
