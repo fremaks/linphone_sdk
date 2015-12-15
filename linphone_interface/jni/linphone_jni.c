@@ -49,8 +49,7 @@ JNIEXPORT jint JNICALL
 linphone_jni_init(JNIEnv* env, jobject thiz, jstring jconfigfile_name) {
 	jint ret = FMS_FAILED;
 	const fms_s8 *configfile_name = NULL;
-	jclass interface_class = 0;
-	
+
 	if (jni_ctx != NULL) {
 		FMS_WARN("linphone jni has aleardy init\n");
 		return ret;
@@ -60,12 +59,6 @@ linphone_jni_init(JNIEnv* env, jobject thiz, jstring jconfigfile_name) {
 	FMS_ASSERT(jni_ctx != NULL);
 	jni_ctx->interface_obj = 0;
 	jni_ctx->callback_method_id = 0;
-
-	interface_class = (*env)->GetObjectClass(env, thiz);
-	jni_ctx->interface_obj = (*env)->NewGlobalRef(env, thiz);
- 	jni_ctx->callback_method_id = (*env)->GetMethodID(env, interface_class,
-                                            "linphoneCallback", "(ILjava/lang/String;)V");
-	(*env)->DeleteLocalRef(env, interface_class);
 	
 	configfile_name = (*env)->GetStringUTFChars(env, jconfigfile_name, NULL);
 	ret = linphone_base_init(configfile_name, linphone_jni_event_callback);
@@ -73,6 +66,19 @@ linphone_jni_init(JNIEnv* env, jobject thiz, jstring jconfigfile_name) {
 
 	return ret;
 }
+
+JNIEXPORT fms_void JNICALL 
+linphone_jni_set_callback(JNIEnv* env, jobject thiz, jobject callback) {
+	jclass callback_class = 0;
+	
+	callback_class = (*env)->GetObjectClass(env, callback);
+	jni_ctx->interface_obj = (*env)->NewGlobalRef(env, callback);
+ 	jni_ctx->callback_method_id = (*env)->GetMethodID(env, callback_class,
+                                            "linphoneCallback", "(ILjava/lang/String;)V");
+
+	(*env)->DeleteLocalRef(env, callback_class);
+}
+
 
 JNIEXPORT fms_void JNICALL 
 linphone_jni_uninit(JNIEnv* env, jobject thiz, jint jexit_status) {
@@ -129,11 +135,12 @@ linphone_jni_fmscamera_put_image(JNIEnv *env, jobject thiz, jbyteArray jyuvframe
 }
 
 static JNINativeMethod linphone_interface_methods[] = { 
-	{"linphone_init", "(Ljava/lang/String;)I", (fms_void *)linphone_jni_init},
-	{"linphone_uninit", "(I)V", (fms_void *)linphone_jni_uninit},
-	{"linphone_set_native_window_id", "(L"VIDEO_DISPLAY_CLASS";)V",
+	{"init", "(Ljava/lang/String;)I", (fms_void *)linphone_jni_init},
+	{"uninit", "(I)V", (fms_void *)linphone_jni_uninit},
+	{"set_callback", "(Ljava/lang/Object;)V", (fms_void *)linphone_jni_set_callback},
+	{"set_native_window_id", "(Ljava/lang/Object;)V",
 	                            (fms_void *)linphone_jni_set_native_window_id},
-	{"linphone_add_event", "(ILjava/lang/String;)V", (fms_void *)linphone_jni_add_event},
+	{"add_event", "(ILjava/lang/String;)V", (fms_void *)linphone_jni_add_event},
 	{"openglesdisplay_init", "(III)V", (fms_void *)linphone_jni_openglesdisplay_init},
 	{"openglesdisplay_render", "(I)V", (fms_void *)linphone_jni_openglesdisplay_render},
 	{"fmscamera_put_image", "([BI)V", (fms_void *)linphone_jni_fmscamera_put_image}
