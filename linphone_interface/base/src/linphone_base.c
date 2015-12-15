@@ -214,6 +214,8 @@ linphone_register(LinphoneCore *lc, const fms_s8 *username, const fms_s8 *passwo
 	
 	FMS_INFO("linphone_register:username=%s password=%s proxy=%s\n", username, password, proxy);
 
+	linphone_core_clear_proxy_config(lc);
+
 	info = linphone_auth_info_new(username, NULL, password, NULL, NULL, proxy);
 	linphone_core_add_auth_info(lc, info);
 	linphone_auth_info_destroy(info);
