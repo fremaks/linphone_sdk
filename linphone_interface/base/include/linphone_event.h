@@ -30,6 +30,10 @@ typedef enum {
     LINPHONE_CAMERA_SWITCH_RESPBONSE,	//retValue
     LINPHONE_SNED_DTMF_REQUEST,			//Dtmf_string>
     LINPHONE_SEND_DTMF_RESPBONSE,		//retValue
+    LINPHONE_SET_DND_SATTE_REQUEST,     //state>   0->close  1->open
+    LINPHONE_SET_DND_SATTE_RESPBONSE,   //state>
+    LINPHONE_GET_DND_SATTE_REQUEST,     
+    LINPHONE_GET_DND_SATTE_RESPBONSE,   //state>
     LINPHONE_EVENT_UNKNOW
 } linphone_event_type;
 

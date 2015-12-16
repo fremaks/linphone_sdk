@@ -383,6 +383,32 @@ linphone_event_handle(linphone_event *event) {
 			linphone_core_send_dtmf(lc, dtmf);
 			break;
 		}
+
+		case LINPHONE_SET_DND_SATTE_REQUEST : {
+			fms_s32 state = 0;
+			ret_type = LINPHONE_SET_DND_SATTE_RESPBONSE;
+			sscanf(event->data, "%d>", &state);
+			if (0 == state) {
+				linphone_core_set_presence_info(lc, 0, NULL, LinphoneStatusOnline);
+			} else {
+				linphone_core_set_presence_info(lc, 0, NULL, LinphoneStatusDoNotDisturb);
+			}
+			sprintf(ret_data, "%d>", state);
+			break;
+		}
+
+		case LINPHONE_GET_DND_SATTE_REQUEST : {
+			fms_s32 state = linphone_core_get_presence_info(lc);
+			ret_type = LINPHONE_GET_DND_SATTE_RESPBONSE;		
+			if (LinphoneStatusDoNotDisturb == state) {
+				state = 1;
+			} else {
+				state = 0;
+			}
+			sprintf(ret_data, "%d>", state);
+			break;
+		}
+		
 		default : {
 			FMS_ERROR("unknow event type=%d\n", event->type);
 			break;
