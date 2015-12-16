@@ -2648,6 +2648,9 @@ void linphone_core_iterate(LinphoneCore *lc){
 				linphone_core_decline_call(lc,call,decline_reason);
 			}
 		}
+		if (call->state == LinphoneCallOutgoingProgress && elapsed > 5) {
+			linphone_core_terminate_call(lc,call);
+		}
 		if ( (lc->sip_conf.in_call_timeout > 0)
 			 && (call->log->connected_date_time != 0)
 			 && ((curtime - call->log->connected_date_time) > lc->sip_conf.in_call_timeout))

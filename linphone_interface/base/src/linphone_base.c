@@ -70,6 +70,7 @@ linphone_call_state_changed(LinphoneCore *lc, LinphoneCall *call,
 	linphone_event *event = NULL;
 	linphone_event_type event_type = LINPHONE_EVENT_UNKNOW;
 	fms_s8 event_data[DATA_MAX_LEN] = {0};
+	static fms_s32 last_state = LinphoneCallIdle;
 	
 	FMS_INFO("linphone_call_state_changed->msg=%s[%d]\n", msg, st);
 	
@@ -114,8 +115,13 @@ linphone_call_state_changed(LinphoneCore *lc, LinphoneCall *call,
 				} else if (strncmp(msg, "Call ended", strlen("Call ended")) == 0) {//remote hangup(connected)
 					event_type = LINPHONE_HANGUP_REQUEST;
 				} else if (strncmp(msg, "Call terminated", strlen("Call terminated")) == 0) {//local hangup
-					event_type = LINPHONE_HANGUP_RESPBONSE;
-					sprintf(event_data, "%d>", FMS_SUCCESS);
+					if (LinphoneCallOutgoingProgress == last_state) {
+						event_type = LINPHONE_CALL_RESPBONSE;
+						sprintf(event_data, "%d>", CALL_NOT_FIND);	
+					} else {
+						event_type = LINPHONE_HANGUP_RESPBONSE;
+						sprintf(event_data, "%d>", FMS_SUCCESS); 
+					}
 				}
 				break;
 			}
@@ -127,7 +133,7 @@ linphone_call_state_changed(LinphoneCore *lc, LinphoneCall *call,
 			linphone_event_uninit(event);			
 		}
 	}
-	
+	last_state = st;
 }
 
 static fms_void
