@@ -70,8 +70,11 @@ struct AndroidReaderContext {
 	jobject androidCamera;
 	jobject previewWindow;
 	jclass helperClass;
-	jmethodID openID;
-	jmethodID closeID;
+	jmethodID startCameraID;
+	jmethodID startPreviewID;
+	jmethodID stopCameraID;
+	jfieldID  startPreviewFlagID;
+	jint startPreviewFlag;
 };
 
 jclass fms_camera_class;
@@ -99,9 +102,13 @@ static void video_capture_init(MSFilter *f) {
 	constructID = env->GetMethodID(fms_camera_class, "<init>", "()V");
 	d->androidCamera = env->NewObject(fms_camera_class, constructID);  
 	d->androidCamera = (jobject)env->NewGlobalRef(d->androidCamera);
+	
+	d->startCameraID = env->GetMethodID(fms_camera_class, "startCamera", "(II)V");
+	d->startPreviewID = env->GetMethodID(fms_camera_class, "startPreview", "()V");
+	d->stopCameraID = env->GetMethodID(fms_camera_class, "stopCamera", "()V"); 
 
-	d->openID = env->GetMethodID(fms_camera_class, "openCamera", "(II)V");
-	d->closeID = env->GetMethodID(fms_camera_class, "closeCamera", "()V");
+	d->startPreviewFlagID = env->GetStaticFieldID(fms_camera_class, "startPreviewFlag", "Z");
+	d->startPreviewFlag = 0;
 	
 	jvm->DetachCurrentThread();	
 }
@@ -113,9 +120,9 @@ static void video_capture_preprocess(MSFilter *f){
 	
 	jvm->AttachCurrentThread(&env, NULL);
 
-	if (d->openID) {
+	if (d->startCameraID) {
 		ms_mutex_lock(&d->mutex);
-		env->CallVoidMethod(d->androidCamera, d->openID, d->usedSize.width, d->usedSize.height);
+		env->CallVoidMethod(d->androidCamera, d->startCameraID, d->usedSize.width, d->usedSize.height);
 		ms_mutex_unlock(&d->mutex);
 	}
 	
@@ -124,6 +131,17 @@ static void video_capture_preprocess(MSFilter *f){
 
 static void video_capture_process(MSFilter *f){
 	AndroidReaderContext* d = getContext(f);
+
+	if (!d->startPreviewFlag) {
+		JNIEnv *env = NULL;
+		JavaVM *jvm = ms_get_jvm();
+		jvm->AttachCurrentThread(&env, NULL);
+		d->startPreviewFlag = env->GetStaticBooleanField(fms_camera_class, d->startPreviewFlagID);
+		if (d->startPreviewFlag) {
+			env->CallVoidMethod(d->androidCamera, d->startPreviewID);
+		}
+		jvm->DetachCurrentThread();	
+	}
 	if (d->frame == 0) {
 		return;
 	}
@@ -141,8 +159,8 @@ static void video_capture_postprocess(MSFilter *f){
 	
 	jvm->AttachCurrentThread(&env, NULL);
 	
-	if (d->closeID) {
-		env->CallVoidMethod(d->androidCamera, d->closeID);
+	if (d->stopCameraID) {
+		env->CallVoidMethod(d->androidCamera, d->stopCameraID);
 	}
 	
 	jvm->DetachCurrentThread();	

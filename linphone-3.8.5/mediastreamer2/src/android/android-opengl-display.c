@@ -159,7 +159,7 @@ static int android_display_set_window(MSFilter *f, void *arg){
 
 	ms_filter_unlock(f);
 	
-	(*jvm)->DetachCurrentThread(jvm);
+	//(*jvm)->DetachCurrentThread(jvm);
 	return 0;
 }
 

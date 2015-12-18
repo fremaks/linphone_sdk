@@ -5,7 +5,8 @@
 #include "linphone_event.h"
 #include "linphone_base.h"
 #include <pthread.h>
-#include <linphonecore.h>
+#include "linphonecore.h"
+#include "private.h"
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -17,6 +18,7 @@
 
 #define LINPHONE_VERSION "3.8.5"
 
+#define LOOP_TIME 200000
 
 typedef struct _linphone_base_conext {
 	LinphoneCore *lc; 
@@ -423,6 +425,40 @@ linphone_event_handle(linphone_event *event) {
 }
 
 
+fms_bool video_stream_alive(VideoStream * stream){
+	const rtp_stats_t *stats;
+	static struct timeval last_time = {0, 0};
+	struct timeval cur_time = {0, 0};
+	static fms_s8 fail_count = 0;
+
+	gettimeofday(&cur_time, NULL);
+	
+	stats=rtp_session_get_stats(stream->ms.sessions.rtp_session);
+	if (stats->recv != 0) {
+		if (stats->recv != stream->ms.last_packet_count){
+			stream->ms.last_packet_count=stats->recv;
+			last_time.tv_sec = cur_time.tv_sec;
+			last_time.tv_usec = cur_time.tv_usec;
+			fail_count = 0;
+		}
+	} else {
+		return FMS_TRUE;
+	}
+
+	if (last_time.tv_sec != cur_time.tv_sec || last_time.tv_usec != cur_time.tv_usec) {
+		last_time.tv_sec = cur_time.tv_sec;
+		last_time.tv_usec = cur_time.tv_usec;
+		if(++fail_count == 5) {
+			return FMS_FALSE;
+		}		
+	}
+
+
+	return FMS_TRUE;	
+}
+
+
+
 void *linphone_event_thread(void *arg) {
 	linphone_event *event = NULL;
 	fms_list *list = NULL;
@@ -441,7 +477,27 @@ void *linphone_event_thread(void *arg) {
 			linphone_event_uninit(event);
 		}
 		linphone_core_iterate(lc);
-		usleep(200000);
+		
+		call = linphone_core_get_current_call(lc);
+		if (call != NULL && call->videostream != NULL && call->videostream->ms.state == MSStreamStarted
+			&&(call->state == LinphoneCallIncomingReceived 
+			|| call->state == LinphoneCallConnected 
+			|| call->state == LinphoneCallOutgoingRinging
+			|| call->state == LinphoneCallOutgoingEarlyMedia
+			|| call->state == LinphoneCallStreamsRunning)) {	
+			
+			if (!video_stream_alive(call->videostream)) {
+				if (base_ctx->event_callback_ptr != NULL) {
+					linphone_event *callback_event = 
+						linphone_event_init(LINPHONE_CAMERA_SWITCH_RESPBONSE, "0>");
+					(*(base_ctx->event_callback_ptr))(callback_event);
+					linphone_event_uninit(callback_event);
+				}
+			} 
+
+		}
+			
+		usleep(LOOP_TIME);
 	}
 
 	linphone_core_terminate_all_calls(lc);
