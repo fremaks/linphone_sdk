@@ -19,6 +19,8 @@
 #define LINPHONE_VERSION "3.8.5"
 
 #define LOOP_TIME 200000
+#define VIDEO_ALIVE_CHECK_NUM  1000000/LOOP_TIME
+
 
 typedef struct _linphone_base_conext {
 	LinphoneCore *lc; 
@@ -430,27 +432,32 @@ fms_bool video_stream_alive(VideoStream * stream){
 	static struct timeval last_time = {0, 0};
 	struct timeval cur_time = {0, 0};
 	static fms_s8 fail_count = 0;
-
+	static fms_bool video_alive_flag = FMS_TRUE;
+	
 	gettimeofday(&cur_time, NULL);
 	
 	stats=rtp_session_get_stats(stream->ms.sessions.rtp_session);
 	if (stats->recv != 0) {
 		if (stats->recv != stream->ms.last_packet_count){
 			stream->ms.last_packet_count=stats->recv;
-			last_time.tv_sec = cur_time.tv_sec;
-			last_time.tv_usec = cur_time.tv_usec;
-			fail_count = 0;
+			last_time = cur_time;
 		}
+		if (!video_alive_flag) {
+			video_alive_flag = FMS_TRUE;
+		}
+		fail_count = 0;
 	} else {
 		return FMS_TRUE;
 	}
-
+	
 	if (last_time.tv_sec != cur_time.tv_sec || last_time.tv_usec != cur_time.tv_usec) {
-		last_time.tv_sec = cur_time.tv_sec;
-		last_time.tv_usec = cur_time.tv_usec;
-		if(++fail_count == 5) {
-			return FMS_FALSE;
-		}		
+		if (video_alive_flag) {
+			if(++fail_count == VIDEO_ALIVE_CHECK_NUM) {
+				video_alive_flag = FMS_FALSE;
+				return FMS_FALSE;
+				
+			} 	
+		}
 	}
 
 
@@ -463,6 +470,7 @@ void *linphone_event_thread(void *arg) {
 	linphone_event *event = NULL;
 	fms_list *list = NULL;
 	LinphoneCore *lc = base_ctx->lc;
+	LinphoneCall *call = NULL;
 	
 	FMS_DEBUG("linphone_event_thread start\n");
 	
