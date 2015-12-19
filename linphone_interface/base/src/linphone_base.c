@@ -427,7 +427,7 @@ linphone_event_handle(linphone_event *event) {
 }
 
 
-fms_bool video_stream_alive(VideoStream * stream){
+static fms_bool video_stream_alive(VideoStream * stream){
 	const rtp_stats_t *stats;
 	static struct timeval last_time = {0, 0};
 	struct timeval cur_time = {0, 0};
@@ -441,11 +441,13 @@ fms_bool video_stream_alive(VideoStream * stream){
 		if (stats->recv != stream->ms.last_packet_count){
 			stream->ms.last_packet_count=stats->recv;
 			last_time = cur_time;
+			fail_count = 0;
+			if (!video_alive_flag) {
+				video_alive_flag = FMS_TRUE;
+			}
 		}
-		if (!video_alive_flag) {
-			video_alive_flag = FMS_TRUE;
-		}
-		fail_count = 0;
+
+		
 	} else {
 		return FMS_TRUE;
 	}
