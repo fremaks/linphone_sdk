@@ -623,6 +623,10 @@ fms_void linphone_base_uninit(fms_s32 exit_status) {
 	//等待线程结束
 }
 
+fms_bool linphone_base_hascam(fms_void) {
+	return ms_web_cam_manager_hascam(ms_web_cam_manager_get());		
+}
+
 #if ANDROID
 
 fms_void linphone_base_set_jvm(fms_void *jvm) {

@@ -116,6 +116,13 @@ linphone_jni_add_event(JNIEnv* env, jobject thiz, jint jevent_type,
 	(*env)->ReleaseStringUTFChars(env, jevent_data, event_data);
 }
 
+JNIEXPORT fms_bool JNICALL  
+linphone_jni_hascam(fms_void) {
+	return linphone_base_hascam();
+}	
+
+
+
 JNIEXPORT fms_void JNICALL 
 linphone_jni_openglesdisplay_init(JNIEnv* env, jobject thiz, jint ptr, jint width, 
 								             jint height) {
@@ -141,6 +148,7 @@ static JNINativeMethod linphone_interface_methods[] = {
 	{"set_native_window_id", "(Ljava/lang/Object;)V",
 	                            (fms_void *)linphone_jni_set_native_window_id},
 	{"add_event", "(ILjava/lang/String;)V", (fms_void *)linphone_jni_add_event},
+	{"hascam", "()Z", (fms_void *)linphone_jni_hascam},
 	{"openglesdisplay_init", "(III)V", (fms_void *)linphone_jni_openglesdisplay_init},
 	{"openglesdisplay_render", "(I)V", (fms_void *)linphone_jni_openglesdisplay_render},
 	{"fmscamera_put_image", "([BI)V", (fms_void *)linphone_jni_fmscamera_put_image}

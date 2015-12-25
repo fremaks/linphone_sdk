@@ -28,6 +28,8 @@ fms_void linphone_base_set_native_window_id(fms_uintptr window_id);
 
 fms_void linphone_base_add_event(linphone_event *event);
 
+fms_bool linphone_base_hascam(fms_void);
+
 #if ANDROID
 
 fms_void linphone_base_set_jvm(fms_void *vm);
