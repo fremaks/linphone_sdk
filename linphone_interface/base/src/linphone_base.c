@@ -216,13 +216,14 @@ linphone_call_encryption_changed(LinphoneCore *lc, LinphoneCall *call,
 
 
 static fms_s32  
-linphone_register(LinphoneCore *lc, const fms_s8 *username, const fms_s8 *password, 
-				  const fms_s8* proxy) {
+linphone_register(LinphoneCore *lc, const fms_s8 *displayname ,const fms_s8 *username, 
+                       const fms_s8 *password, const fms_s8* proxy) {
 	fms_s8 identity[HOUSENO_MAX_LEN + IP_MAX_LEN + 10] = {0};
 	LinphoneProxyConfig *cfg = NULL;
 	LinphoneAuthInfo *info = NULL;
 	
-	FMS_INFO("linphone_register:username=%s password=%s proxy=%s\n", username, password, proxy);
+	FMS_INFO("linphone_register:username=%s password=%s proxy=%s displayname=%s\n", username, 
+		     password, proxy, displayname);
 
 	linphone_core_clear_proxy_config(lc);
 
@@ -232,7 +233,7 @@ linphone_register(LinphoneCore *lc, const fms_s8 *username, const fms_s8 *passwo
 
 	cfg=linphone_proxy_config_new();
 	
-	sprintf(identity, "<sip:%s@%s>", username, proxy);	
+	sprintf(identity, "%s<sip:%s@%s>", displayname, username, proxy);	
 	//linphone_core_set_sip_transports(lc,&transport);
 	linphone_proxy_config_set_expires(cfg, 300);//default 300s
 	FMS_EQUAL_RETURN_VALUE(linphone_proxy_config_set_identity(cfg, identity), FMS_FAILED, FMS_FAILED);
@@ -327,12 +328,14 @@ linphone_event_handle(linphone_event *event) {
 	FMS_INFO("event->type=%d data=%s\n", event->type, event->data);
 	switch (event->type) {	
 		case LINPHONE_REGISTER_REQUEST : {
+			fms_s8 displayname[HOUSENO_MAX_LEN] = {0};
 			fms_s8 houseno[HOUSENO_MAX_LEN] = {0};
 			fms_s8 password[PASSWORD_MAX_LEN] = {0};
 			fms_s8 proxy[IP_MAX_LEN] = {0};
 			
-			sscanf(event->data, "%[^>]>%[^>]>%[^>]>", houseno, password, proxy);
-			ret = linphone_register(lc, houseno, password, proxy);
+			
+			sscanf(event->data, "%[^>]%[^>]>%[^>]>%[^>]>", displayname, houseno, password, proxy);
+			ret = linphone_register(lc, displayname, houseno, password, proxy);
 			if (ret != FMS_SUCCESS) {
 				ret_type = LINPHONE_REGISTER_RESPBONSE;
 				sprintf(ret_data, "%d>", FMS_FAILED);
@@ -625,6 +628,11 @@ fms_void linphone_base_uninit(fms_s32 exit_status) {
 
 fms_bool linphone_base_hascam(fms_void) {
 	return ms_web_cam_manager_hascam(ms_web_cam_manager_get());		
+}
+
+fms_void linphone_base_set_preview_size(fms_s32 width, fms_s32 height) {
+	MSVideoSize vsize = {width, height};
+    linphone_core_set_preview_video_size(base_ctx->lc, vsize);
 }
 
 #if ANDROID

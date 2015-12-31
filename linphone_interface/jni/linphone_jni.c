@@ -124,6 +124,13 @@ linphone_jni_hascam(fms_void) {
 
 
 JNIEXPORT fms_void JNICALL 
+JNIEXPORT fms_void JNICALL 
+linphone_jni_set_preview_size(JNIEnv* env, jobject thiz, jint width, 
+                                                  jint height) {
+	linphone_base_set_preview_size(width, height);
+}
+
+JNIEXPORT fms_void JNICALL 
 linphone_jni_openglesdisplay_init(JNIEnv* env, jobject thiz, jint ptr, jint width, 
 								             jint height) {
 	linphone_base_openglesdisplay_init(ptr, width, height);
@@ -149,6 +156,7 @@ static JNINativeMethod linphone_interface_methods[] = {
 	                            (fms_void *)linphone_jni_set_native_window_id},
 	{"add_event", "(ILjava/lang/String;)V", (fms_void *)linphone_jni_add_event},
 	{"hascam", "()Z", (fms_void *)linphone_jni_hascam},
+	{"set_preview_size", "(II)V", (fms_void *)linphone_jni_set_preview_size},
 	{"openglesdisplay_init", "(III)V", (fms_void *)linphone_jni_openglesdisplay_init},
 	{"openglesdisplay_render", "(I)V", (fms_void *)linphone_jni_openglesdisplay_render},
 	{"fmscamera_put_image", "([BI)V", (fms_void *)linphone_jni_fmscamera_put_image}
