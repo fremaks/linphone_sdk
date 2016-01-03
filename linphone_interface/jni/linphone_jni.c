@@ -124,7 +124,6 @@ linphone_jni_hascam(fms_void) {
 
 
 JNIEXPORT fms_void JNICALL 
-JNIEXPORT fms_void JNICALL 
 linphone_jni_set_preview_size(JNIEnv* env, jobject thiz, jint width, 
                                                   jint height) {
 	linphone_base_set_preview_size(width, height);
